@@ -28,7 +28,7 @@ const CameraStyles = {
     },
 
     debug: {
-        background: 'rgba(0, 0, 0, 0.3)',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         borderWidth: 1,
         borderColor: 'white',
         position: 'absolute',

@@ -3,13 +3,21 @@ import {Text, View, TouchableOpacity, Dimensions} from 'react-native';
 import {Camera} from 'expo-camera';
 
 import {WB_ICONS, WB_ORDER, FLASH_ICONS, FLASH_ORDER} from "../constants/camera";
+
+import {CameraContext} from "../contexts/cameraContext";
+import {ImageContext} from "../contexts/imageContext";
+import Actions from "./Camera/Actions";
+
 import CameraStyles from '../styles/Camera';
 
 const CameraView = () => {
+    const {flashState, typeState} = React.useContext(CameraContext);
+
+    const [flash, setFlash] = flashState;
+    const [type, setType] = typeState;
+
     const [hasPermission, setHasPermission] = useState(null);
     const [aspectRatio, setAspectRatio] = useState('16:9');
-    const [type, setType] = useState(Camera.Constants.Type.back);
-    const [flash, setFlash] = useState('auto');
 
     const screenWidth = Math.round(Dimensions.get('window').width);
     const screenHeight = Math.round(Dimensions.get('window').height);
@@ -37,35 +45,17 @@ const CameraView = () => {
         })();
     }
 
-    const takePicture = () => {
-        if (camera) {
-            camera.current.takePictureAsync({
-                onPictureSaved: (photo) => {
-                    console.log(photo);
-                }
-            });
-        }
-    };
-
-    const toggleCameraSource = () => {
-        setType(
-            type === Camera.Constants.Type.back
-                ? Camera.Constants.Type.front
-                : Camera.Constants.Type.back
-        );
-    };
-
-    const toggleFlash = () => {
-        setFlash(flash === 'auto' ? 'torch' : 'auto');
-    };
+    // const onFacesDetected = (faces) => {
+    //     console.log(faces);
+    // }
 
     return (
         <Camera ref={camera}
                 style={CameraStyles.camera}
                 type={type}
                 ratio={aspectRatio}
-                onCameraReady={setRatio}
                 flashMode={flash}
+                onCameraReady={setRatio}
         >
             <View style={CameraStyles.debug}>
                 <Text style={CameraStyles.debug.text}>
@@ -73,27 +63,8 @@ const CameraView = () => {
                 </Text>
             </View>
 
-            <View
-                style={CameraStyles.bottomBar}>
-                <TouchableOpacity
-                    style={CameraStyles.bottomBar.item}
-                    onPress={toggleCameraSource}
-                >
-                    <Text style={CameraStyles.bottomBar.text}>Flip</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={CameraStyles.bottomBar.item}
-                    onPress={takePicture}
-                >
-                    <Text style={CameraStyles.bottomBar.text}>Capture</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={CameraStyles.bottomBar.item}
-                    onPress={toggleFlash}
-                >
-                    <Text style={CameraStyles.bottomBar.text}>Flash</Text>
-                </TouchableOpacity>
-            </View>
+            <Actions cameraRef={camera} />
+
         </Camera>
     );
 }
