@@ -1,65 +1,97 @@
 import React from 'react';
-import {Text, TouchableOpacity, View} from "react-native";
 import {Camera} from "expo-camera";
+import {documentDirectory, moveAsync} from "expo-file-system";
+import {TouchableOpacity, View} from "react-native";
+import {MaterialIcons as IconMat} from '@expo/vector-icons';
 
 import CameraStyles from "../../styles/Camera";
-import {CameraContext} from "../../contexts/cameraContext";
 import {ImageContext} from "../../contexts/imageContext";
 
-const Actions = ({cameraRef}) => {
+import {ICONS, FLASH_ORDER} from "../../constants/camera";
+import {PATHS} from "../../constants/app";
 
-    const {flashState, typeState} = React.useContext(CameraContext);
-    const {imageState, showPreviewState} = React.useContext(ImageContext);
+const Actions = ({cameraRef, actions}) => {
+    const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
-    const [image, setImage] = imageState;
-    const [showPreview, setShowPreview] = showPreviewState;
+    const {previewState} = React.useContext(ImageContext);
 
-    const [flash, setFlash] = flashState;
-    const [type, setType] = typeState;
+    const [preview, setPreview] = previewState;
+    const [flash, setFlash] = actions.flashState;
+    const [cameraSource, setCameraSource] = actions.cameraSourceState;
+
+    const [icons, setIcons] = React.useState({})
+
+    React.useEffect(() => {
+        const cameraSourceIconName = Camera.Constants.Type.front === cameraSource ? 'front' : 'rear';
+        const newIcons = {
+            flash: ICONS.FLASH_ICONS[flash],
+            camera: ICONS.CAMERA_SOURCE_ICONS[cameraSourceIconName]
+        };
+
+        setIcons(newIcons);
+    }, [flash, cameraSource]);
 
     const takePicture = () => {
         if (cameraRef) {
             cameraRef.current.takePictureAsync({
                 onPictureSaved: (photo) => {
-                    setImage(photo);
-                    setShowPreview(true);
+                    setPreview(photo);
+                    savePhoto(photo);
                 }
             });
         }
     };
 
+    const savePhoto = async (photo) => {
+        const movePath = documentDirectory + PATHS.IMAGES;
+        //const file = await moveAsync(photo.uri, movePath);
+
+        console.log(file);
+    };
+
     const toggleCameraSource = () => {
-        setType(
-            type === Camera.Constants.Type.back
-                ? Camera.Constants.Type.front
-                : Camera.Constants.Type.back
+        setCameraSource(
+            cameraSource === Camera.Constants.Type.front
+                ? Camera.Constants.Type.back
+                : Camera.Constants.Type.front
         );
     };
 
     const toggleFlash = () => {
-        setFlash(flash === 'auto' ? 'torch' : 'auto');
+        const keys = Object.keys(FLASH_ORDER);
+        const index = keys.indexOf(flash);
+        const newIndex = (index === keys.length-1 ? 0 : index+1);
+
+        setFlash(FLASH_ORDER[keys[newIndex]]);
     };
 
     return (
-        <View
-            style={CameraStyles.bottomBar}>
+        <View style={CameraStyles.bottomBarActions}>
             <TouchableOpacity
-                style={CameraStyles.bottomBar.item}
+                accessible={true}
+                accessibilityLabel="Toggle Camera Source"
+                accessibilityHint={`Switch to ${cameraSource === Camera.Constants.Type.front ? 'front':'back'} camera`}
                 onPress={toggleCameraSource}
+                style={CameraStyles.bottomBarActions.item.portrait}
             >
-                <Text style={CameraStyles.bottomBar.text}>Flip</Text>
+                <IconMat name={icons.camera} size={iconSize/1.9} color={"#fff"}/>
             </TouchableOpacity>
             <TouchableOpacity
-                style={CameraStyles.bottomBar.item}
+                accessible={true}
+                accessibilityLabel="Take photograph"
                 onPress={takePicture}
+                style={CameraStyles.bottomBarActions.item.portrait}
             >
-                <Text style={CameraStyles.bottomBar.text}>Capture</Text>
+                <IconMat name={ICONS.CAMERA_SHUTTER} size={iconSize} color={"#fff"}/>
             </TouchableOpacity>
             <TouchableOpacity
-                style={CameraStyles.bottomBar.item}
+                accessible={true}
+                accessibilityLabel="Toggle flash setting"
+                accessibilityHint={`Flash is ${flash}`}
                 onPress={toggleFlash}
+                style={CameraStyles.bottomBarActions.item.portrait}
             >
-                <Text style={CameraStyles.bottomBar.text}>Flash</Text>
+                <IconMat name={icons.flash} size={iconSize/1.9} color={"#fff"}/>
             </TouchableOpacity>
         </View>
     );

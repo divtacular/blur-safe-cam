@@ -1,39 +1,35 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {Text, View, TouchableOpacity, Dimensions} from 'react-native';
+import React from 'react';
+import {Image, TouchableOpacity, Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
 
-import {WB_ICONS, WB_ORDER, FLASH_ICONS, FLASH_ORDER} from "../constants/camera";
-
-import {CameraContext} from "../contexts/cameraContext";
+import { NavigationContext } from '@react-navigation/core';
 import {ImageContext} from "../contexts/imageContext";
+
 import Actions from "./Camera/Actions";
+import Zoom from "./Camera/Zoom";
+import PreviewDot from "./Camera/previewDot";
 
 import CameraStyles from '../styles/Camera';
 
 const CameraView = () => {
-    const {flashState, typeState} = React.useContext(CameraContext);
+    const {previewState} = React.useContext(ImageContext);
+    const navigation = React.useContext(NavigationContext);
 
-    const [flash, setFlash] = flashState;
-    const [type, setType] = typeState;
+    const [preview, setPreview] = previewState;
+    const [flash, setFlash] = React.useState('auto');
+    const [zoom, setZoom] = React.useState(0);
+    const [cameraSource, setCameraSource] = React.useState(Camera.Constants.Type.back);
+    const [hasPermission, setHasPermission] = React.useState(null);
+    const [aspectRatio, setAspectRatio] = React.useState('16:9');
 
-    const [hasPermission, setHasPermission] = useState(null);
-    const [aspectRatio, setAspectRatio] = useState('16:9');
+    const camera = React.useRef();
 
-    const screenWidth = Math.round(Dimensions.get('window').width);
-    const screenHeight = Math.round(Dimensions.get('window').height);
-
-    const camera = useRef();
-
-    useEffect(() => {
+    React.useEffect(() => {
         (async () => {
             const {status} = await Camera.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
     }, []);
-
-    if (!hasPermission) {
-        return <Text>No access to camera</Text>;
-    }
 
     const setRatio = () => {
         (async () => {
@@ -45,27 +41,36 @@ const CameraView = () => {
         })();
     }
 
-    // const onFacesDetected = (faces) => {
-    //     console.log(faces);
-    // }
+    if (!hasPermission) {
+        return <View>
+            <View>
+                <Text>No access to camera</Text>
+            </View>
+        </View>;
+    }
 
     return (
-        <Camera ref={camera}
-                style={CameraStyles.camera}
-                type={type}
-                ratio={aspectRatio}
-                flashMode={flash}
-                onCameraReady={setRatio}
-        >
-            <View style={CameraStyles.debug}>
-                <Text style={CameraStyles.debug.text}>
-                    Screen: {screenWidth} x {screenHeight}
-                </Text>
-            </View>
-
-            <Actions cameraRef={camera} />
-
-        </Camera>
+        <View style={CameraStyles.gestureWrapper}>
+            <Zoom style={{flex: 1}} zoom={zoom} setZoom={setZoom}>
+                <Camera
+                    flashMode={Camera.Constants.FlashMode[flash]}
+                    onCameraReady={setRatio}
+                    ratio={aspectRatio}
+                    ref={camera}
+                    type={cameraSource}
+                    zoom={zoom}
+                    style={CameraStyles.camera}
+                >
+                    {preview && <PreviewDot />}
+                </Camera>
+            </Zoom>
+            <Actions
+                actions={{
+                    flashState: [flash, setFlash],
+                    cameraSourceState: [cameraSource, setCameraSource]
+                }}
+                cameraRef={camera}/>
+        </View>
     );
 }
 

@@ -11,7 +11,7 @@ export const dispatchFormatter = (type, value) => {
     };
 }
 
-export const getImageDimensions = ({width, height}) => {
+export const getImageDimensions = (pictureSize, {width, height}) => {
 
     if (width > height) {
         const scaledHeight = pictureSize * height / width;

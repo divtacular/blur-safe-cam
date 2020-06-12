@@ -1,44 +1,49 @@
 const CameraStyles = {
-    camera: {
-        flex: 1
+    gestureWrapper: {
+        flex: 1,
+        //backgroundColor: 'rgba(255,255,255,0.3)'
     },
 
-    bottomBar: {
+    camera: {
         flex: 1,
-        display: 'flex',
         flexDirection: 'row',
         alignItems: 'flex-end',
+        justifyContent: 'flex-end'
+    },
+
+    previewWrapper: {
+        button: {
+            height: 72,
+            margin: 15,
+            width: 72,
+        },
+
+        image: {
+            flex: 1,
+            borderRadius: 100,
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.4)',
+        },
+    },
+
+    bottomBarActions: {
+        backgroundColor: 'rgba(17,17,17,0.9)',
+        alignContent: 'center',
+        flexDirection: 'row',
         justifyContent: 'space-between',
 
         item: {
-            borderWidth: 1,
-            borderColor: 'red',
-            width: 0,
-            flexGrow: 1,
-            flexShrink: 1,
-            flexBasis: 0,
+            portrait: {
+                alignItems: 'center',
+                alignSelf: 'center',
+                flex: 1,
+                padding: 10,
+                width: 64,
+            }
         },
 
-        text: {
-            fontSize: 18,
-            marginBottom: 10,
-            color: 'white',
-            textAlign: 'center',
-        }
-    },
-
-    debug: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        borderWidth: 1,
-        borderColor: 'white',
-        position: 'absolute',
-        top: 50,
-        left: 25,
-        padding: 10,
-
-        text: {
-            fontSize: 8,
-            color: 'white',
+        icons: {
+            fontSize: 56,
         }
     }
 }

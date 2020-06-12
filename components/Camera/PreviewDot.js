@@ -1,11 +1,25 @@
 import React from 'react';
+import {View, TouchableHighlight, Image, TouchableOpacity} from "react-native";
+import CameraStyles from "../../styles/Camera";
 
-const Actions = () => {
+import {ImageContext} from "../../contexts/imageContext";
+import {NavigationContext} from "@react-navigation/core";
+
+const PreviewDot = () => {
+    const {previewState} = React.useContext(ImageContext);
+    const navigation = React.useContext(NavigationContext);
+
+    const [preview] = previewState;
+
+    const showPreview = () => {
+        navigation.navigate('Gallery')
+    };
+
     return (
-        <div>
-            
-        </div>
+        <TouchableOpacity onPress={showPreview} style={CameraStyles.previewWrapper.button}>
+            <Image source={{uri: preview.uri}} style={CameraStyles.previewWrapper.image}/>
+        </TouchableOpacity>
     );
 };
 
-export default Actions;
+export default PreviewDot;
