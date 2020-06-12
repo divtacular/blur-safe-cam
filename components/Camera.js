@@ -1,31 +1,35 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {Text, View, TouchableOpacity, Dimensions} from 'react-native';
+import React from 'react';
+import {Image, TouchableOpacity, Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
 
-import {WB_ICONS, WB_ORDER, FLASH_ICONS, FLASH_ORDER} from "../constants/camera";
+import { NavigationContext } from '@react-navigation/core';
+import {ImageContext} from "../contexts/imageContext";
+
+import Actions from "./Camera/Actions";
+import Zoom from "./Camera/Zoom";
+import PreviewDot from "./Camera/previewDot";
+
 import CameraStyles from '../styles/Camera';
 
 const CameraView = () => {
-    const [hasPermission, setHasPermission] = useState(null);
-    const [aspectRatio, setAspectRatio] = useState('16:9');
-    const [type, setType] = useState(Camera.Constants.Type.back);
-    const [flash, setFlash] = useState('auto');
+    const {previewState} = React.useContext(ImageContext);
+    const navigation = React.useContext(NavigationContext);
 
-    const screenWidth = Math.round(Dimensions.get('window').width);
-    const screenHeight = Math.round(Dimensions.get('window').height);
+    const [preview, setPreview] = previewState;
+    const [flash, setFlash] = React.useState('auto');
+    const [zoom, setZoom] = React.useState(0);
+    const [cameraSource, setCameraSource] = React.useState(Camera.Constants.Type.back);
+    const [hasPermission, setHasPermission] = React.useState(null);
+    const [aspectRatio, setAspectRatio] = React.useState('16:9');
 
-    const camera = useRef();
+    const camera = React.useRef();
 
-    useEffect(() => {
+    React.useEffect(() => {
         (async () => {
             const {status} = await Camera.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
     }, []);
-
-    if (!hasPermission) {
-        return <Text>No access to camera</Text>;
-    }
 
     const setRatio = () => {
         (async () => {
@@ -37,64 +41,36 @@ const CameraView = () => {
         })();
     }
 
-    const takePicture = () => {
-        if (camera) {
-            camera.current.takePictureAsync({
-                onPictureSaved: (photo) => {
-                    console.log(photo);
-                }
-            });
-        }
-    };
-
-    const toggleCameraSource = () => {
-        setType(
-            type === Camera.Constants.Type.back
-                ? Camera.Constants.Type.front
-                : Camera.Constants.Type.back
-        );
-    };
-
-    const toggleFlash = () => {
-        setFlash(flash === 'auto' ? 'torch' : 'auto');
-    };
+    if (!hasPermission) {
+        return <View>
+            <View>
+                <Text>No access to camera</Text>
+            </View>
+        </View>;
+    }
 
     return (
-        <Camera ref={camera}
-                style={CameraStyles.camera}
-                type={type}
-                ratio={aspectRatio}
-                onCameraReady={setRatio}
-                flashMode={flash}
-        >
-            <View style={CameraStyles.debug}>
-                <Text style={CameraStyles.debug.text}>
-                    Screen: {screenWidth} x {screenHeight}
-                </Text>
-            </View>
-
-            <View
-                style={CameraStyles.bottomBar}>
-                <TouchableOpacity
-                    style={CameraStyles.bottomBar.item}
-                    onPress={toggleCameraSource}
+        <View style={CameraStyles.gestureWrapper}>
+            <Zoom style={{flex: 1}} zoom={zoom} setZoom={setZoom}>
+                <Camera
+                    flashMode={Camera.Constants.FlashMode[flash]}
+                    onCameraReady={setRatio}
+                    ratio={aspectRatio}
+                    ref={camera}
+                    type={cameraSource}
+                    zoom={zoom}
+                    style={CameraStyles.camera}
                 >
-                    <Text style={CameraStyles.bottomBar.text}>Flip</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={CameraStyles.bottomBar.item}
-                    onPress={takePicture}
-                >
-                    <Text style={CameraStyles.bottomBar.text}>Capture</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={CameraStyles.bottomBar.item}
-                    onPress={toggleFlash}
-                >
-                    <Text style={CameraStyles.bottomBar.text}>Flash</Text>
-                </TouchableOpacity>
-            </View>
-        </Camera>
+                    {preview && <PreviewDot />}
+                </Camera>
+            </Zoom>
+            <Actions
+                actions={{
+                    flashState: [flash, setFlash],
+                    cameraSourceState: [cameraSource, setCameraSource]
+                }}
+                cameraRef={camera}/>
+        </View>
     );
 }
 
