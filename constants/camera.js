@@ -22,9 +22,11 @@ const ICONS = {
     },
     FLASH_ICONS: {
         off: 'flash-off',
-        on: 'flash-on',
+        //on: 'flash-on',
+        on: 'flash',
         auto: 'flash-auto',
-        torch: 'highlight'
+        //torch: 'highlight'
+        torch: 'lightbulb-on'
     },
     WB_ICONS: {
         auto: 'wb-auto',

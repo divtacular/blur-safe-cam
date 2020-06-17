@@ -5,18 +5,21 @@ import CameraStyles from "../../styles/Camera";
 import {ImageContext} from "../../contexts/imageContext";
 import {NavigationContext} from "@react-navigation/core";
 
-const PreviewDot = () => {
-    const {previewState} = React.useContext(ImageContext);
+const PreviewDot = ({gallery}) => {
     const navigation = React.useContext(NavigationContext);
 
-    const [preview] = previewState;
+    const [preview, setPreview] = React.useState({});
 
-    const showPreview = () => {
-        navigation.navigate('Gallery')
+    React.useEffect(() => {
+        setPreview(gallery[0]);
+    }, [gallery]);
+
+    const handlePress = () => {
+        navigation.navigate('Gallery');
     };
 
     return (
-        <TouchableOpacity onPress={showPreview} style={CameraStyles.previewWrapper.button}>
+        <TouchableOpacity onPress={handlePress} style={CameraStyles.previewWrapper.button}>
             <Image source={{uri: preview.uri}} style={CameraStyles.previewWrapper.image}/>
         </TouchableOpacity>
     );

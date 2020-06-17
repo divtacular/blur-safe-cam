@@ -1,38 +1,40 @@
 import React from 'react';
-import {View} from "react-native";
+import {View, Text} from "react-native";
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import {documentDirectory, makeDirectoryAsync} from 'expo-file-system';
-import CameraContextProvider from "./contexts/cameraContext";
+
 import ImageContextProvider from "./contexts/imageContext";
+import DatabaseContextProvider from "./contexts/databaseContext";
+import PermissionsContextProvider from "./contexts/permissionsContext";
 
 import Camera from './components/Camera';
 import Gallery from './components/Gallery';
-import {PATHS} from './constants/app';
+
+//import install from "./utils/install";
 
 const Stack = createStackNavigator();
 
-const App = () => {
+//import DebugDatabase from './temp/DebugDataBase';
+import {DB} from './constants/app';
 
-    //TODO: move setup file or smth
-    React.useEffect(() => {
-        //Create file storage
-        makeDirectoryAsync(documentDirectory + PATHS.IMAGES).catch(() => {
-           // dir exists
-        });
-    }, [])
+const App = () => {
 
 
     return (
         <View style={{flex: 1}}>
-            <ImageContextProvider>
-                <NavigationContainer>
-                    <Stack.Navigator>
-                        <Stack.Screen component={Gallery} name="Gallery"/>
-                        <Stack.Screen component={Camera} name="Camera" options={{headerShown: false}}/>
-                    </Stack.Navigator>
-                </NavigationContainer>
-            </ImageContextProvider>
+            {/*<DebugDatabase />*/}
+            <PermissionsContextProvider>
+                <DatabaseContextProvider>
+                    <ImageContextProvider>
+                        <NavigationContainer>
+                            <Stack.Navigator>
+                                <Stack.Screen component={Camera} name="Camera" options={{headerShown: false}}/>
+                                <Stack.Screen component={Gallery} name="Gallery"/>
+                            </Stack.Navigator>
+                        </NavigationContainer>
+                    </ImageContextProvider>
+                </DatabaseContextProvider>
+            </PermissionsContextProvider>
         </View>
     );
 }

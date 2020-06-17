@@ -1,25 +1,30 @@
 import React from 'react';
+import {Text, TouchableOpacity, View} from "react-native";
 import {Camera} from "expo-camera";
-import {documentDirectory, moveAsync} from "expo-file-system";
-import {TouchableOpacity, View} from "react-native";
-import {MaterialIcons as IconMat} from '@expo/vector-icons';
+import {MaterialCommunityIcons as IconMat} from '@expo/vector-icons';
+import {createAlbumAsync, createAssetAsync} from "expo-media-library";
+
+import {ImageContext} from "../../contexts/imageContext";
+import {PermissionsContext} from "../../contexts/permissionsContext";
 
 import CameraStyles from "../../styles/Camera";
-import {ImageContext} from "../../contexts/imageContext";
-
+import {ALBUM_NAME} from "../../constants/app";
 import {ICONS, FLASH_ORDER} from "../../constants/camera";
-import {PATHS} from "../../constants/app";
+import ImagesDB from "../../utils/database";
+import {getFileNameExt} from "../../utils/helpers";
+
+const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
 const Actions = ({cameraRef, actions}) => {
-    const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
-    const {previewState} = React.useContext(ImageContext);
+    const {mediaLibraryPermission} = React.useContext(PermissionsContext);
+    const {addToGallery, setFaceData} = React.useContext(ImageContext);
 
-    const [preview, setPreview] = previewState;
     const [flash, setFlash] = actions.flashState;
     const [cameraSource, setCameraSource] = actions.cameraSourceState;
+    //const [, setPreview] = previewState;
 
-    const [icons, setIcons] = React.useState({})
+    const [icons, setIcons] = React.useState({});
 
     React.useEffect(() => {
         const cameraSourceIconName = Camera.Constants.Type.front === cameraSource ? 'front' : 'rear';
@@ -27,26 +32,35 @@ const Actions = ({cameraRef, actions}) => {
             flash: ICONS.FLASH_ICONS[flash],
             camera: ICONS.CAMERA_SOURCE_ICONS[cameraSourceIconName]
         };
-
         setIcons(newIcons);
     }, [flash, cameraSource]);
 
     const takePicture = () => {
         if (cameraRef) {
             cameraRef.current.takePictureAsync({
-                onPictureSaved: (photo) => {
-                    setPreview(photo);
-                    savePhoto(photo);
+                onPictureSaved: async (capture) => {
+                    const [name] = getFileNameExt(capture.uri);
+                    const asset = await saveToMediaLibrary(capture);
+
+                    const image = {
+                        name,
+                        uri: asset.uri,
+                        width: asset.width,
+                        height: asset.height,
+                        processed: false
+                    };
+
+                    ImagesDB.create(image).then(({id}) => {
+                        asset.id = id;
+                        setFaceData(asset);
+                        addToGallery({
+                            id,
+                            ...image
+                        });
+                    });
                 }
             });
         }
-    };
-
-    const savePhoto = async (photo) => {
-        const movePath = documentDirectory + PATHS.IMAGES;
-        //const file = await moveAsync(photo.uri, movePath);
-
-        console.log(file);
     };
 
     const toggleCameraSource = () => {
@@ -60,21 +74,38 @@ const Actions = ({cameraRef, actions}) => {
     const toggleFlash = () => {
         const keys = Object.keys(FLASH_ORDER);
         const index = keys.indexOf(flash);
-        const newIndex = (index === keys.length-1 ? 0 : index+1);
+        const newIndex = (index === keys.length - 1 ? 0 : index + 1);
 
         setFlash(FLASH_ORDER[keys[newIndex]]);
     };
+
+    const saveToMediaLibrary = async (photo) => {
+        const asset = await createAssetAsync(photo.uri);
+
+        //Move asset to album, cam't create empty album on Android
+        createAlbumAsync(ALBUM_NAME, asset, false)
+            .catch(error => console.warn(error.message));
+        return photo;
+    };
+
+    if (!mediaLibraryPermission) {
+        return (
+            <View style={CameraStyles.bottomBarActions}>
+                <Text>Media Library Permissions Required</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={CameraStyles.bottomBarActions}>
             <TouchableOpacity
                 accessible={true}
                 accessibilityLabel="Toggle Camera Source"
-                accessibilityHint={`Switch to ${cameraSource === Camera.Constants.Type.front ? 'front':'back'} camera`}
+                accessibilityHint={`Switch to ${cameraSource === Camera.Constants.Type.front ? 'front' : 'back'} camera`}
                 onPress={toggleCameraSource}
                 style={CameraStyles.bottomBarActions.item.portrait}
             >
-                <IconMat name={icons.camera} size={iconSize/1.9} color={"#fff"}/>
+                <IconMat name={icons.camera} size={iconSize / 1.9} color={"#fff"}/>
             </TouchableOpacity>
             <TouchableOpacity
                 accessible={true}
@@ -91,7 +122,7 @@ const Actions = ({cameraRef, actions}) => {
                 onPress={toggleFlash}
                 style={CameraStyles.bottomBarActions.item.portrait}
             >
-                <IconMat name={icons.flash} size={iconSize/1.9} color={"#fff"}/>
+                <IconMat name={icons.flash} size={iconSize / 1.9} color={"#fff"}/>
             </TouchableOpacity>
         </View>
     );
