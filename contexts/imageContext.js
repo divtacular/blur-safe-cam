@@ -1,37 +1,96 @@
 import React, {createContext} from 'react';
-import * as FaceDetector from "expo-face-detector";
+import {detectFacesAsync, Constants} from "expo-face-detector";
+
+import ImagesDB from "../utils/database";
 
 export const ImageContext = createContext();
 
 const ImageContextProvider = (props) => {
-    const previewState = React.useState(false);
-    const processState = React.useState(false);
-    const faceDataState = React.useState(false);
+    //Gallery =  [ { URI, name, FaceData, ProcessedFlag } ]
+    const [gallery, setGallery] = React.useState([]);
 
-    const [preview, setPreview] = previewState;
-    const [processQueue, setProcessQueue] = processState;
-    const [faceData, setFaceData] = faceDataState;
+    // const setValueForGalleryImageByName = (imageName, {key, value}) => {
+    //     const galleryImage = gallery.filter((image) => {
+    //         return image.imageName === imageName;
+    //     }).map((match) => {
+    //         match[key] = value;
+    //     });
+    //
+    //     setGallery({
+    //         ...gallery,
+    //         galleryImage
+    //     });
+    // };
 
-    React.useEffect(() => {
-        if (!preview) {
+    const addToGallery = (image) => {
+        setGallery([
+            image,
+            ...gallery
+        ]);
+    };
+
+    const updateGallery = (updated) => {
+        setGallery((prevProps) => {
+            return prevProps.map((image) => {
+                if (image.id === updated.id) {
+                    return {
+                        ...image,
+                        ...updated
+                    };
+                }
+                return image;
+            });
+        });
+    }
+
+    //TODO: Memoise this expensive operation
+    const setFaceData = (asset) => {
+        if (!asset) {
             return;
         }
-
-        FaceDetector.detectFacesAsync(preview.uri, {
-            mode: FaceDetector.Constants.Mode.accurate,
-            detectLandmarks: FaceDetector.Constants.Landmarks.none,
-            runClassifications: FaceDetector.Constants.Classifications.none,
+        detectFacesAsync(asset.uri, {
+            mode: Constants.Mode.fast,
+            detectLandmarks: Constants.Landmarks.none,
+            runClassifications: Constants.Classifications.none,
             minDetectionInterval: 100
-        })
-            .then((faceCoords) => {
-                console.log(faceCoords);
-            })
-            .catch(error => console.warn(error));
+        }).then(({faces}) => {
+            if (faces.length) {
+                faces = faces.map((face) => {
+                    return ({
+                        x: face.bounds.origin.x,
+                        y: face.bounds.origin.y,
+                        height: face.bounds.size.height,
+                        width: face.bounds.size.width,
+                        rollAngle: face.rollAngle,
+                        yawAngle: face.yawAngle
+                    });
+                });
+            }
 
-    }, [preview]);
+            const props = {
+                id: asset.id,
+                faceData: JSON.stringify(faces)
+            };
+            ImagesDB.update(props).then(() => {
+                updateGallery(props);
+            });
+        });
+    };
+
+    //Populate gallery
+    //Gallery =  [ { URI, name, FaceData, ProcessedFlag } ]
+    React.useEffect(() => {
+        ImagesDB.query({
+            columns: 'id, name, uri, processed, faceData, width, height',
+            order: 'id DESC'
+        }).then((res) => {
+            setGallery(res);
+        })
+    }, []);
+
 
     return (
-        <ImageContext.Provider value={{previewState, processQueue, faceDataState}}>
+        <ImageContext.Provider value={{gallery, addToGallery, setFaceData}}>
             {props.children}
         </ImageContext.Provider>
     );

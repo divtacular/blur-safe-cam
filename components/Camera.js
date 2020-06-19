@@ -2,34 +2,29 @@ import React from 'react';
 import {Image, TouchableOpacity, Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
 
-import { NavigationContext } from '@react-navigation/core';
+import {NavigationContext} from '@react-navigation/core';
 import {ImageContext} from "../contexts/imageContext";
+import {PermissionsContext} from "../contexts/permissionsContext";
 
 import Actions from "./Camera/Actions";
 import Zoom from "./Camera/Zoom";
-import PreviewDot from "./Camera/previewDot";
+import PreviewDot from './Camera/PreviewDot'
 
 import CameraStyles from '../styles/Camera';
+import {useIsFocused} from '@react-navigation/native';
 
 const CameraView = () => {
-    const {previewState} = React.useContext(ImageContext);
-    const navigation = React.useContext(NavigationContext);
+    const {gallery} = React.useContext(ImageContext);
+    //const {cameraPermission} = React.useContext(PermissionsContext);
+const cameraPermission = true;
+    const isFocused = useIsFocused();
 
-    const [preview, setPreview] = previewState;
     const [flash, setFlash] = React.useState('auto');
     const [zoom, setZoom] = React.useState(0);
     const [cameraSource, setCameraSource] = React.useState(Camera.Constants.Type.back);
-    const [hasPermission, setHasPermission] = React.useState(null);
     const [aspectRatio, setAspectRatio] = React.useState('16:9');
 
     const camera = React.useRef();
-
-    React.useEffect(() => {
-        (async () => {
-            const {status} = await Camera.requestPermissionsAsync();
-            setHasPermission(status === 'granted');
-        })();
-    }, []);
 
     const setRatio = () => {
         (async () => {
@@ -41,7 +36,7 @@ const CameraView = () => {
         })();
     }
 
-    if (!hasPermission) {
+    if (!cameraPermission) {
         return <View>
             <View>
                 <Text>No access to camera</Text>
@@ -52,6 +47,8 @@ const CameraView = () => {
     return (
         <View style={CameraStyles.gestureWrapper}>
             <Zoom style={{flex: 1}} zoom={zoom} setZoom={setZoom}>
+
+                {isFocused &&
                 <Camera
                     flashMode={Camera.Constants.FlashMode[flash]}
                     onCameraReady={setRatio}
@@ -61,8 +58,9 @@ const CameraView = () => {
                     zoom={zoom}
                     style={CameraStyles.camera}
                 >
-                    {preview && <PreviewDot />}
+                    {gallery.length > 0 && <PreviewDot gallery={gallery}/>}
                 </Camera>
+                }
             </Zoom>
             <Actions
                 actions={{
