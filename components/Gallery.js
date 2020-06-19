@@ -3,37 +3,45 @@ import {View, Text, ImageBackground, Image} from 'react-native';
 //import * as FileSystem from 'expo-file-system';
 import GallerySwiper from "react-native-gallery-swiper";
 
-import Actions from './Gallery/Actions';
-import Images from "../utils/database";
 import {ImageContext} from "../contexts/imageContext";
+import Actions from './Gallery/Actions';
+import GalleryImage from "./Gallery/GalleryImage";
+//import Images from "../utils/database";
 
-let pageSelected = 0;
+let activeSlide = null;
 
 const Gallery = () => {
     const {gallery} = React.useContext(ImageContext);
-    const [activeImage, setActiveImage] = React.useState(false);
-    //const [currentPage, setCurrentPage] = React.useState(0);
-    //const [isEditing, setIsEditing] = React.useState(false);
-    //const [images, setImages] = React.useState([]);
+    const [images, setImages] = React.useState([]);
+    const [activeImage, setActiveImage] = React.useState({});
+    const [blurFaces, setBlurFaces] = React.useState(false);
 
-    const editEl = React.useRef(null);
-    //
-    // React.useEffect(() => {
-    //     setImages(gallery);
-    // }, []);
-    //
-    // React.useEffect(() => {
-    //     setImages(gallery.map(addDynamicKeyToImage));
-    // }, [isEditing]);
+    React.useEffect(() => {
+        gallery.length && setImages(gallery.map(addDynamicKeyToImage));
+        //update active slide data
+        if (activeSlide !== null) {
+            setActiveImage(gallery[activeSlide]);
+        }
+    }, [gallery]);
 
-    // const addDynamicKeyToImage = (image) => {
-    //     const length = gallery.length;
-    //     image.key = `${image.id}#${isEditing}#${length}`;
-    //     return image;
-    // };
+    React.useEffect(() => {
+        gallery.length && setImages(gallery.map(addDynamicKeyToImage));
+    }, [blurFaces]);
+
+    React.useEffect(() => {
+    }, [images]);
+
+    const addDynamicKeyToImage = (image) => {
+        const showFaces = blurFaces && activeImage.id === image.id ? 1 : 0;
+        //const hasFaceData = Object.keys(image).includes('faceData') ? 1 : 0;
+        image.key = `${image.id}#${showFaces}`;
+        return image;
+    };
 
     const applyFaceData = () => {
-        setActiveImage(gallery[pageSelected]);
+        //const activeSlide = gallery[pageSelected];
+        setBlurFaces(true);
+
         //copy to edit view
         //do face apply
         //screenshot
@@ -43,28 +51,19 @@ const Gallery = () => {
         //update db
     }
 
-    const GalleryImage = (props) => {
-        return <Image {...props} resizeMethod={'resize'} />
+    const GalleryImageRenderer = (props) => {
+        return <GalleryImage blurFaces={blurFaces} activeImage={activeImage} {...props} />
     }
 
-    const fullSizeImage = (props) => {
-        const {uri, width, height} = gallery[pageSelected];
-        return <Image source={{uri}} style={{width, height }} />;
-    }
-
-    if (!gallery.length) {
+    if (!images.length) {
         return <Text>Loading...</Text>
     }
 
-    if(activeImage) {
-        return fullSizeImage()
-    }
-
     return (
-        <View style={{flex: 1 }}>
+        <View style={{flex: 1}}>
             <GallerySwiper
-                images={gallery}
-                imageComponent={GalleryImage}
+                images={images}
+                imageComponent={GalleryImageRenderer}
                 initialNumToRender={2}
                 //initialPage={currentPage}
                 enableResistance={false}
@@ -74,10 +73,14 @@ const Gallery = () => {
                 sensitiveScroll={true}
                 style={{flex: 1, backgroundColor: '#111'}}
                 onPageSelected={(idx) => {
-                    pageSelected = idx
+                    activeSlide = idx;
+                    setActiveImage(gallery[idx])
                 }}
             />
-            <Actions applyFaceData={applyFaceData}/>
+            <Actions applyFaceData={applyFaceData}
+                     blurredFacesState={[blurFaces, setBlurFaces]}
+                     activeImage={activeImage}
+            />
         </View>
     );
 };

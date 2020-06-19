@@ -42,6 +42,10 @@ export const getImageDimensions = (pictureSize, {width, height}) => {
     }
 };
 
+export const getScaledPosDimensions = ({width, height, x, y}) => {
+
+}
+
 export const getFileNameExt = (path) => {
     return path.split('/').pop().split('.')
 }

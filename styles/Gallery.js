@@ -19,6 +19,7 @@ const GalleryStyles = {
                 alignSelf: 'center',
                 flex: 1,
                 padding: 10,
+                position: 'relative',
                 width: 64,
             }
         },

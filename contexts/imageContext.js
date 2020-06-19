@@ -30,17 +30,17 @@ const ImageContextProvider = (props) => {
     };
 
     const updateGallery = (updated) => {
-        //todo
-        let newState = gallery.map((image) => {
-            if (image.id === updated.id) {
-                return {
-                    ...image,
-                    ...updated
-                };
-            }
+        setGallery((prevProps) => {
+            return prevProps.map((image) => {
+                if (image.id === updated.id) {
+                    return {
+                        ...image,
+                        ...updated
+                    };
+                }
+                return image;
+            });
         });
-
-        setGallery(newState);
     }
 
     //TODO: Memoise this expensive operation
@@ -71,10 +71,8 @@ const ImageContextProvider = (props) => {
                 id: asset.id,
                 faceData: JSON.stringify(faces)
             };
-
-            ImagesDB.update(props).then(async (res) => {
-                //console.log(res);
-                //update gallery with face data
+            ImagesDB.update(props).then(() => {
+                updateGallery(props);
             });
         });
     };

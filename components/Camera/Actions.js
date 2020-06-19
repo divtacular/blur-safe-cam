@@ -50,11 +50,11 @@ const Actions = ({cameraRef, actions}) => {
                         processed: false
                     };
 
-                    ImagesDB.create(image).then(({id}) => {
-                        asset.id = id;
+                    ImagesDB.create(image).then((res) => {
+                        asset.id = res.id;
                         setFaceData(asset);
                         addToGallery({
-                            id,
+                            id: res.id,
                             ...image
                         });
                     });
@@ -82,7 +82,7 @@ const Actions = ({cameraRef, actions}) => {
     const saveToMediaLibrary = async (photo) => {
         const asset = await createAssetAsync(photo.uri);
 
-        //Move asset to album, cam't create empty album on Android
+        //Move asset to album, can't create empty album on Android
         createAlbumAsync(ALBUM_NAME, asset, false)
             .catch(error => console.warn(error.message));
         return photo;
