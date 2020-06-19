@@ -11,38 +11,51 @@ export const dispatchFormatter = (type, value) => {
     };
 }
 
-export const getImageDimensions = (pictureSize, {width, height}) => {
+export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimensions}) => {
+    const {orgWidth, orgHeight} = originalImageDimensions;
 
-    if (width > height) {
-        const scaledHeight = pictureSize * height / width;
+    const viewHeight = viewDimensions.height;
+    const viewWidth = viewDimensions.width;
 
+    if (orgWidth > orgHeight) { //landscape
+        const scaledHeight = viewWidth * orgHeight / orgWidth;
         return {
-            width: pictureSize,
-            height: scaledHeight,
-
-            scaleX: pictureSize / width,
-            scaleY: scaledHeight / height,
-
-            offsetX: 0,
-            offsetY: 0, //(pictureSize - scaledHeight) / 2,
+            width: viewWidth,
+            height: scaledHeight
         };
-    } else {
-        const scaledWidth = pictureSize * width / height;
-
+    } else { //portrait
+        const scaledWidth = viewHeight * orgWidth / orgHeight;
         return {
-            width: scaledWidth,
-            height: pictureSize,
-
-            scaleX: scaledWidth / width,
-            scaleY: pictureSize / height,
-
-            offsetX: 0, //(pictureSize - scaledWidth) / 2,
-            offsetY: 0,
+            scaledWidth: scaledWidth,
+            scaledHeight: viewHeight
         };
     }
-};
+}
 
-export const getScaledPosDimensions = ({width, height, x, y}) => {
+export const scaleAndPositionFaceBlurRelatively = ({
+                                                       originalImageDimensions,
+                                                       viewDimensions,
+                                                       faceImage
+                                                   }) => {
+
+    const {orgHeight, orgWidth} = originalImageDimensions
+
+    const {scaledWidth, scaledHeight} = scaledImageDimensionsInView({
+        originalImageDimensions,
+        viewDimensions
+    });
+
+    const offsetTop = ((faceImage.y / orgHeight) * scaledHeight) + ((viewDimensions.height - scaledHeight) / 2);
+    const offsetLeft = ((faceImage.x / orgWidth) * scaledWidth) + ((viewDimensions.width - scaledWidth) / 2);
+    const height = (faceImage.height / orgHeight) * scaledHeight;
+    const width = (faceImage.width / orgWidth) * scaledWidth;
+
+    return {
+        offsetTop,
+        offsetLeft,
+        height,
+        width
+    };
 
 }
 

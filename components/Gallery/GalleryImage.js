@@ -1,6 +1,8 @@
 import React from 'react';
-import {ImageBackground, View, Text, Image, Dimensions, TouchableOpacity} from 'react-native';
+import {ImageBackground, View, Text, Image, Dimensions, TouchableOpacity, PixelRatio} from 'react-native';
 import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
+
+import {scaleAndPositionFaceBlurRelatively, scaledImageDimensionsInView} from './../../utils/helpers';
 
 const GalleryImage = (props) => {
     const {activeImage, blurFaces, image} = props;
@@ -34,12 +36,11 @@ const GalleryImage = (props) => {
                 {compress: 1, format: SaveFormat.JPEG}
             )
                 .catch((error) => {
-                    console.log(coord)
-
                     return console.warn(error);
                 })
             faces.push({...coord, ...crop});
         }
+
         setCroppedFaces(faces);
     };
 
@@ -48,24 +49,34 @@ const GalleryImage = (props) => {
             setViewDimensions({...event.nativeEvent.layout})
         }}>
             <ImageBackground {...props}>
-                {blurFaces && croppedFaces && viewDimensions && croppedFaces.map((face, i) => {
+                {blurFaces && croppedFaces && viewDimensions && croppedFaces.map((faceImage, i) => {
+                    const originalImageDimensions = {
+                        orgWidth: activeImage.width,
+                        orgHeight: activeImage.height
+                    };
 
-                    const t = (face.y / height) * viewDimensions.height;
-                    const l = (face.x / width) * viewDimensions.width;
-                    const h = (face.height / height) * viewDimensions.height;
-                    const w = (face.width / width) * viewDimensions.width;
+                    const {scaledWidth, scaledHeight} = scaledImageDimensionsInView(
+                        {
+                            originalImageDimensions,
+                            viewDimensions
+                        }
+                    );
+                    const {offsetTop, offsetLeft, height, width} = scaleAndPositionFaceBlurRelatively({
+                        originalImageDimensions,
+                        viewDimensions,
+                        faceImage
+                    });
 
                     return (
-                        <TouchableOpacity>
+                        <TouchableOpacity key={i}>
                             <Image
-                                blurRadius={10}
-                                key={i}
-                                source={{uri: face.uri}}
+                                blurRadius={0}
+                                source={{uri: faceImage.uri}}
                                 style={{
-                                    top: t,
-                                    left: l,
-                                    height: w,
-                                    width: h,
+                                    top: offsetTop,
+                                    left: offsetLeft,
+                                    height: height,
+                                    width: width,
                                     position: 'absolute',
                                     borderColor: 'rgba(17, 17, 17, 0.4)',
                                     borderRadius: 100,
@@ -73,12 +84,12 @@ const GalleryImage = (props) => {
                                     borderTopRightRadius: 25,
                                     borderBottomLeftRadius: 200,
                                     borderBottomRightRadius: 200,
-                                    borderWidth: 2,
+                                    borderWidth: 1,
                                 }}
                                 transform={[
                                     {perspective: 600},
-                                    {rotateZ: `${(face.rollAngle || 0).toFixed(0)}deg`},
-                                    {rotateY: `${(face.yawAngle || 0).toFixed(0)}deg`},
+                                    {rotateZ: `${(faceImage.rollAngle || 0).toFixed(0)}deg`},
+                                    {rotateY: `${(faceImage.yawAngle || 0).toFixed(0)}deg`},
                                 ]}
                                 // onLoad={() => {
                                 //     setDrawnFaces(prevState => {
