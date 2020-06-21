@@ -10,6 +10,7 @@ const PermissionsContextProvider = (props) => {
     });
 
     React.useEffect(() => {
+        //Could replace with a hook?
         (async () => {
             const cameraStatus = await askAsync(CAMERA);
             const mediaLibraryStatus = await askAsync(CAMERA_ROLL);

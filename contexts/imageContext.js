@@ -1,7 +1,11 @@
 import React, {createContext} from 'react';
 import {detectFacesAsync, Constants} from "expo-face-detector";
+import {deleteAssetsAsync, getAlbumAsync, removeAssetsFromAlbumAsync} from 'expo-media-library';
+
+import * as MediaLibrary from 'expo-media-library';
 
 import ImagesDB from "../utils/database";
+import {ALBUM_NAME} from "../constants/app";
 
 export const ImageContext = createContext();
 
@@ -9,18 +13,16 @@ const ImageContextProvider = (props) => {
     //Gallery =  [ { URI, name, FaceData, ProcessedFlag } ]
     const [gallery, setGallery] = React.useState([]);
 
-    // const setValueForGalleryImageByName = (imageName, {key, value}) => {
-    //     const galleryImage = gallery.filter((image) => {
-    //         return image.imageName === imageName;
-    //     }).map((match) => {
-    //         match[key] = value;
-    //     });
-    //
-    //     setGallery({
-    //         ...gallery,
-    //         galleryImage
-    //     });
-    // };
+    //Populate gallery
+    //Gallery =  [ { URI, name, FaceData, ProcessedFlag } ]
+    React.useEffect(() => {
+        ImagesDB.query({
+            columns: '*',
+            order: 'id DESC'
+        }).then((res) => {
+            setGallery(res);
+        })
+    }, []);
 
     const addToGallery = (image) => {
         setGallery([
@@ -41,19 +43,52 @@ const ImageContextProvider = (props) => {
                 return image;
             });
         });
-    }
+    };
 
-    //TODO: Memoise this expensive operation
+    const removeFromGallery = ({id, assetID}) => {
+        MediaLibrary.getAlbumsAsync().then((res) => {
+            console.log(res);
+        })
+        setGallery((prevProps) => {
+            return prevProps.filter((image) => {
+                return image.id !== id;
+            })
+        });
+        ImagesDB.destroy(id);
+
+        getAlbumAsync(ALBUM_NAME).then(({id}) => {
+
+            console.log(assetID.toString());
+            console.log(id);
+
+            removeAssetsFromAlbumAsync([assetID.toString()], id.toString()).then(
+                ( res ) => {
+                    deleteAssetsAsync([assetID.toString()]).then((res) => {
+                        console.log(res);
+                    });
+                }
+            );
+        });
+    };
+
+    //TODO: Memoise this expensive operation. Move this.
     const setFaceData = (asset) => {
+
+        console.log('FACE DETECT CALLED');
+
         if (!asset) {
             return;
         }
+
         detectFacesAsync(asset.uri, {
-            mode: Constants.Mode.fast,
+            mode: Constants.Mode.accurate,
             detectLandmarks: Constants.Landmarks.none,
             runClassifications: Constants.Classifications.none,
             minDetectionInterval: 100
         }).then(({faces}) => {
+
+            console.log('FACE DETECT RESULTS');
+
             if (faces.length) {
                 faces = faces.map((face) => {
                     return ({
@@ -72,25 +107,14 @@ const ImageContextProvider = (props) => {
                 faceData: JSON.stringify(faces)
             };
             ImagesDB.update(props).then(() => {
+                console.log('FACE DETECT SAVED');
                 updateGallery(props);
             });
         });
     };
 
-    //Populate gallery
-    //Gallery =  [ { URI, name, FaceData, ProcessedFlag } ]
-    React.useEffect(() => {
-        ImagesDB.query({
-            columns: 'id, name, uri, processed, faceData, width, height',
-            order: 'id DESC'
-        }).then((res) => {
-            setGallery(res);
-        })
-    }, []);
-
-
     return (
-        <ImageContext.Provider value={{gallery, addToGallery, setFaceData}}>
+        <ImageContext.Provider value={{gallery, setFaceData, addToGallery, removeFromGallery}}>
             {props.children}
         </ImageContext.Provider>
     );

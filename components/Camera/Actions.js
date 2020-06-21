@@ -12,6 +12,7 @@ import {ALBUM_NAME} from "../../constants/app";
 import {ICONS, FLASH_ORDER} from "../../constants/camera";
 import ImagesDB from "../../utils/database";
 import {getFileNameExt} from "../../utils/helpers";
+import * as MediaLibrary from "expo-media-library";
 
 const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
@@ -22,7 +23,6 @@ const Actions = ({cameraRef, actions}) => {
 
     const [flash, setFlash] = actions.flashState;
     const [cameraSource, setCameraSource] = actions.cameraSourceState;
-    //const [, setPreview] = previewState;
 
     const [icons, setIcons] = React.useState({});
 
@@ -38,15 +38,20 @@ const Actions = ({cameraRef, actions}) => {
     const takePicture = () => {
         if (cameraRef) {
             cameraRef.current.takePictureAsync({
+                //exif: true,
+                skipProcessing: true,
                 onPictureSaved: async (capture) => {
                     const [name] = getFileNameExt(capture.uri);
                     const asset = await saveToMediaLibrary(capture);
+
+                    console.log(capture.exif);
 
                     const image = {
                         name,
                         uri: asset.uri,
                         width: asset.width,
                         height: asset.height,
+                        assetID: asset.assetID,
                         processed: false
                     };
 
@@ -81,10 +86,27 @@ const Actions = ({cameraRef, actions}) => {
 
     const saveToMediaLibrary = async (photo) => {
         const asset = await createAssetAsync(photo.uri);
-
         //Move asset to album, can't create empty album on Android
-        createAlbumAsync(ALBUM_NAME, asset, false)
-            .catch(error => console.warn(error.message));
+        // //"-280988523"
+        // console.log('- - - - - - -');
+// console.log(asset)
+        // await createAlbumAsync(ALBUM_NAME, asset, true)
+        //     .then(({id}) => {
+        //         MediaLibrary.getAssetsAsync({
+        //             album: id
+        //         }).then(({assets}) => {
+        //             //console.log(assets[assets.length -1]);
+        //             assets.forEach((a) => {
+        //                 if(a.filename === asset.filename) {
+        //                     console.log(a);
+        //                 }
+        //             })
+        //             console.log('- - - - - - -');
+        //         });
+        //     })
+        //     .catch(error => console.warn(error.message));
+
+        photo.assetID = asset.id;
         return photo;
     };
 

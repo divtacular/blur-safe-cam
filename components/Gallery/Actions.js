@@ -3,17 +3,22 @@ import {ActivityIndicator, Animated, TouchableOpacity, View} from "react-native"
 import {MaterialCommunityIcons as IconMat} from "@expo/vector-icons";
 import {ICONS} from "../../constants/gallery";
 
+import {ImageContext} from "../../contexts/imageContext";
+
 import GalleryStyles from "../../styles/Gallery";
+import {getAssetInfoAsync} from "expo-media-library";
 
 const iconSize = GalleryStyles.bottomBarActions.icons.fontSize;
 
 const Actions = ({activeImage, applyFaceData, blurredFacesState}) => {
+    const {removeFromGallery} = React.useContext(ImageContext);
+
     const [blurredFaces, setBlurredFaces] = blurredFacesState;
     const [hasFaceData, setHasFaceData] = React.useState(false);
-    const [animatedValue, setAnimatedValue] = React.useState(new Animated.Value(0.3))
+    const [animatedValue] = React.useState(new Animated.Value(0.3))
 
     React.useEffect(() => {
-        setHasFaceData(Object.keys(activeImage).includes('faceData'));
+        setHasFaceData(activeImage && Object.keys(activeImage).includes('faceData'));
     }, [activeImage]);
 
     React.useEffect(() => {
@@ -24,12 +29,14 @@ const Actions = ({activeImage, applyFaceData, blurredFacesState}) => {
     }, [hasFaceData]);
 
     const saveImage = () => {
+
     }
 
     const editImage = () => {
     }
 
     const deleteImage = () => {
+        removeFromGallery(activeImage);
     }
 
     const resetImage = () => {

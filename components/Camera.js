@@ -5,6 +5,7 @@ import {Camera} from 'expo-camera';
 import {NavigationContext} from '@react-navigation/core';
 import {ImageContext} from "../contexts/imageContext";
 import {PermissionsContext} from "../contexts/permissionsContext";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 import Actions from "./Camera/Actions";
 import Zoom from "./Camera/Zoom";
@@ -12,17 +13,18 @@ import PreviewDot from './Camera/PreviewDot'
 
 import CameraStyles from '../styles/Camera';
 import {useIsFocused} from '@react-navigation/native';
+import {set} from "react-native-reanimated";
 
 const CameraView = () => {
     const {gallery} = React.useContext(ImageContext);
-    //const {cameraPermission} = React.useContext(PermissionsContext);
-const cameraPermission = true;
+    const {cameraPermission} = React.useContext(PermissionsContext);
+
     const isFocused = useIsFocused();
 
-    const [flash, setFlash] = React.useState('auto');
     const [zoom, setZoom] = React.useState(0);
-    const [cameraSource, setCameraSource] = React.useState(Camera.Constants.Type.back);
+    const [flash, setFlash] = React.useState('off');
     const [aspectRatio, setAspectRatio] = React.useState('16:9');
+    const [cameraSource, setCameraSource] = React.useState(Camera.Constants.Type.back);
 
     const camera = React.useRef();
 
@@ -33,6 +35,8 @@ const cameraPermission = true;
                 const compatibleRatio = ratios.pop();
                 setAspectRatio(compatibleRatio);
             }
+            //const pictureSize = await camera.current.getAvailablePictureSizesAsync(aspectRatio);
+            //console.log(pictureSize);
         })();
     }
 
@@ -57,6 +61,16 @@ const cameraPermission = true;
                     type={cameraSource}
                     zoom={zoom}
                     style={CameraStyles.camera}
+                    onLoad={() => {
+                        console.log('loaded')
+                    }}
+
+                    // pictureSize={'1920x1080'}
+                    // autoFocus={true}
+                    // useCamera2Api={true}
+                    // onMountError={(e) => {
+                    //     console.log(e);
+                    // }}
                 >
                     {gallery.length > 0 && <PreviewDot gallery={gallery}/>}
                 </Camera>

@@ -7,6 +7,7 @@ const DatabaseContextProvider = (props) => {
 
     React.useEffect(() => {
         (async () => {
+            //console.log(await ImagesDB.dropTable());
             await ImagesDB.createTable();
         })();
     }, []);

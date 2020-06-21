@@ -1,8 +1,11 @@
 import React from 'react';
 import {ImageBackground, View, Text, Image, Dimensions, TouchableOpacity, PixelRatio} from 'react-native';
 import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
+import {getAssetInfoAsync} from "expo-media-library";
 
-import {scaleAndPositionFaceBlurRelatively, scaledImageDimensionsInView} from './../../utils/helpers';
+import {constrainCropToImageDimensions, scaleAndPositionFaceBlurRelatively, scaledImageDimensionsInView} from './../../utils/helpers';
+
+import BlurredFace from "./BlurredFace";
 
 const GalleryImage = (props) => {
     const {activeImage, blurFaces, image} = props;
@@ -22,12 +25,15 @@ const GalleryImage = (props) => {
             return;
         }
         const faces = [];
-        for (const coord of faceCoords) {
-            let crop = await manipulateAsync(
+        for (let coord of faceCoords) {
+
+            coord = constrainCropToImageDimensions(coord, {width, height});
+            const crop = await manipulateAsync(
                 uri,
                 [{
                     crop: {
-                        originX: coord.x >= 0 ? coord.x : 0,
+                        //TODO: constrain these values to the image
+                        originX: coord.x,
                         originY: coord.y,
                         width: coord.width,
                         height: coord.height
@@ -40,7 +46,6 @@ const GalleryImage = (props) => {
                 })
             faces.push({...coord, ...crop});
         }
-
         setCroppedFaces(faces);
     };
 
@@ -50,55 +55,12 @@ const GalleryImage = (props) => {
         }}>
             <ImageBackground {...props}>
                 {blurFaces && croppedFaces && viewDimensions && croppedFaces.map((faceImage, i) => {
-                    const originalImageDimensions = {
-                        orgWidth: activeImage.width,
-                        orgHeight: activeImage.height
-                    };
-
-                    const {scaledWidth, scaledHeight} = scaledImageDimensionsInView(
-                        {
-                            originalImageDimensions,
-                            viewDimensions
-                        }
-                    );
-                    const {offsetTop, offsetLeft, height, width} = scaleAndPositionFaceBlurRelatively({
-                        originalImageDimensions,
-                        viewDimensions,
-                        faceImage
-                    });
-
-                    return (
-                        <TouchableOpacity key={i}>
-                            <Image
-                                blurRadius={0}
-                                source={{uri: faceImage.uri}}
-                                style={{
-                                    top: offsetTop,
-                                    left: offsetLeft,
-                                    height: height,
-                                    width: width,
-                                    position: 'absolute',
-                                    borderColor: 'rgba(17, 17, 17, 0.4)',
-                                    borderRadius: 100,
-                                    borderTopLeftRadius: 25,
-                                    borderTopRightRadius: 25,
-                                    borderBottomLeftRadius: 200,
-                                    borderBottomRightRadius: 200,
-                                    borderWidth: 1,
-                                }}
-                                transform={[
-                                    {perspective: 600},
-                                    {rotateZ: `${(faceImage.rollAngle || 0).toFixed(0)}deg`},
-                                    {rotateY: `${(faceImage.yawAngle || 0).toFixed(0)}deg`},
-                                ]}
-                                // onLoad={() => {
-                                //     setDrawnFaces(prevState => {
-                                //         return prevState + 1;
-                                //     });
-                                // }}
-                            />
-                        </TouchableOpacity>
-                    );
+                    return <BlurredFace
+                        activeImage={activeImage}
+                        faceImage={faceImage}
+                        index={i}
+                        viewDimensions={viewDimensions}
+                    />
                 })}
             </ImageBackground>
         </View>

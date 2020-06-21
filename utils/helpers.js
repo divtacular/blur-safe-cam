@@ -54,9 +54,29 @@ export const scaleAndPositionFaceBlurRelatively = ({
         offsetTop,
         offsetLeft,
         height,
-        width
+        width,
+        scaledWidth,
+        scaledHeight
     };
 
+}
+
+export const constrainCropToImageDimensions = (cropPosition, {width, height}) => {
+
+    //x must be more than 0. Set 0.
+    //y must be more than 0. Set 0.
+
+    const validX =  cropPosition.x >= 0 ? cropPosition.x : 0;
+    const validY = cropPosition.y <= width ? cropPosition.y : 0;
+    const validWidth = cropPosition.x + cropPosition.width <= width ? cropPosition.width : width - cropPosition.x;
+    const validHeight = cropPosition.y + cropPosition.height <= height ? cropPosition.height : height - cropPosition.y;
+
+    return {
+        x: validX,
+        y: validY,
+        width: validWidth,
+        height: validHeight
+    }
 }
 
 export const getFileNameExt = (path) => {

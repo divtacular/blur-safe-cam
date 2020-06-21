@@ -1,6 +1,7 @@
 import React from 'react';
-import {View, Text, ImageBackground, Image} from 'react-native';
-//import * as FileSystem from 'expo-file-system';
+import {View, Text, Vibration} from 'react-native';
+import {getAssetInfoAsync} from "expo-media-library";
+
 import GallerySwiper from "react-native-gallery-swiper";
 
 import {ImageContext} from "../contexts/imageContext";
@@ -15,6 +16,7 @@ const Gallery = () => {
     const [images, setImages] = React.useState([]);
     const [activeImage, setActiveImage] = React.useState({});
     const [blurFaces, setBlurFaces] = React.useState(false);
+    const [longTapPost, setLongTapPos] = React.useState([]);
 
     React.useEffect(() => {
         gallery.length && setImages(gallery.map(addDynamicKeyToImage));
@@ -28,9 +30,6 @@ const Gallery = () => {
         gallery.length && setImages(gallery.map(addDynamicKeyToImage));
     }, [blurFaces]);
 
-    React.useEffect(() => {
-    }, [images]);
-
     const addDynamicKeyToImage = (image) => {
         const showFaces = blurFaces && activeImage.id === image.id ? 1 : 0;
         //const hasFaceData = Object.keys(image).includes('faceData') ? 1 : 0;
@@ -39,16 +38,7 @@ const Gallery = () => {
     };
 
     const applyFaceData = () => {
-        //const activeSlide = gallery[pageSelected];
         setBlurFaces(true);
-
-        //copy to edit view
-        //do face apply
-        //screenshot
-        //overwrite/replace file
-        //update gallery
-        //refresh gallery
-        //update db
     }
 
     const GalleryImageRenderer = (props) => {
@@ -75,6 +65,12 @@ const Gallery = () => {
                 onPageSelected={(idx) => {
                     activeSlide = idx;
                     setActiveImage(gallery[idx])
+                }}
+                onLongPress={({x0, y0}) => {
+                    Vibration.vibrate(30);
+                    setLongTapPos([
+                        x0, y0
+                    ])
                 }}
             />
             <Actions applyFaceData={applyFaceData}
