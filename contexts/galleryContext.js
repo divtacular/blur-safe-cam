@@ -4,22 +4,18 @@ import {StoreContext} from "../store/StoreContext";
 export const GalleryContext = createContext();
 
 const GalleryContextProvider = (props) => {
-    const {gallery, actions} = React.useContext(StoreContext);
+    const {gallery, reducerActions} = React.useContext(StoreContext);
     const [preview, setPreview] = React.useState(false);
 
     React.useEffect(() => {
-        actions.setGallery(null);
+        reducerActions.setGallery(null);
     }, []);
 
     React.useEffect(() => {
-        if (gallery.length) {
+        if (gallery && gallery.length) {
             setPreview(gallery[0]);
         }
     }, [gallery]);
-
-    const getPreviewPicture = () => {
-        return gallery.length && gallery[0];
-    };
 
     //actions.triggerAction("data")
     //

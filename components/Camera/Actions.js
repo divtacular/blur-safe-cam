@@ -2,9 +2,8 @@ import React from 'react';
 import {Text, TouchableOpacity, View} from "react-native";
 import {Camera} from "expo-camera";
 import {MaterialCommunityIcons as IconMat} from '@expo/vector-icons';
-import {createAlbumAsync, createAssetAsync} from "expo-media-library";
 
-import {GalleryContext} from "../../contexts/galleryContext";
+import {StoreContext} from "../../store/StoreContext";
 import {PermissionsContext} from "../../contexts/permissionsContext";
 
 import CameraStyles from "../../styles/Camera";
@@ -13,9 +12,8 @@ import {ICONS, FLASH_ORDER} from "../../constants/camera";
 const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
 const Actions = ({cameraRef, actions}) => {
-
+    const {gallery, reducerActions} = React.useContext(StoreContext);
     const {mediaLibraryPermission} = React.useContext(PermissionsContext);
-    const {addToGallery} = React.useContext(GalleryContext);
 
     const [flash, setFlash] = actions.flashState;
     const [cameraSource, setCameraSource] = actions.cameraSourceState;
@@ -48,8 +46,10 @@ const Actions = ({cameraRef, actions}) => {
 
     const takePicture = () => {
         if (cameraRef) {
-            cameraRef.current.takePictureAsync().then(() => {
-
+            cameraRef.current.takePictureAsync().then((res) => {
+                reducerActions.addImage(res);
+            }).catch(()=>{
+                console.log('take picture')
             });
 
 

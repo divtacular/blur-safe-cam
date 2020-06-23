@@ -15,10 +15,8 @@ import {useIsFocused} from '@react-navigation/native';
 
 const CameraView = () => {
     const isFocused = useIsFocused();
-    const {gallery} = React.useContext(GalleryContext);
+    const {gallery, preview} = React.useContext(GalleryContext);
     const {cameraPermission} = React.useContext(PermissionsContext);
-
-    const [preview, setPreview] = React.useState();
 
     const [zoom, setZoom] = React.useState(0);
     const [flash, setFlash] = React.useState('off');
@@ -27,9 +25,9 @@ const CameraView = () => {
 
     const camera = React.useRef();
 
-    React.useEffect(() => {
-        gallery.length && setPreview(gallery[0])
-    }, [gallery]);
+    // React.useEffect(() => {
+    //     gallery.length && setPreview(gallery[0])
+    // }, [gallery]);
 
     const setRatio = () => {
         (async () => {

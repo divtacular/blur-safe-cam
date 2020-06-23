@@ -8,14 +8,10 @@ export const StoreContext = createContext();
 const StoreProvider = ({children}) => {
     const [gallery, dispatch] = useReducer(reducer, []);
     const middlewareDispatch = applyMiddleware(dispatch); //don't expose dispatch, expose middleware
-    const actions = useActions(gallery, middlewareDispatch);
-
-    // React.useEffect(() => {
-    //     console.log('g', gallery);
-    // }, [gallery])
+    const reducerActions = useActions(gallery, middlewareDispatch);
 
     return (
-        <StoreContext.Provider value={{gallery, middlewareDispatch, actions}}>
+        <StoreContext.Provider value={{gallery, middlewareDispatch, reducerActions}}>
             {children}
         </StoreContext.Provider>
     );

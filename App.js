@@ -6,7 +6,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import StoreProvider from "./store/StoreContext";
 import GalleryContextProvider from "./contexts/galleryContext";
-//import DatabaseContextProvider from "./contexts/databaseContext";
+import DatabaseContextProvider from "./contexts/databaseContext";
 import PermissionsContextProvider from "./contexts/permissionsContext";
 
 import Camera from './components/Camera';
@@ -22,17 +22,17 @@ const App = () => {
             {/*<DebugDatabase setDatabase={setDatabase}/>*/}
             <StoreProvider>
                 <PermissionsContextProvider>
-                    {/*<DatabaseContextProvider>*/}
-                    <GalleryContextProvider>
-                        <NavigationContainer>
-                            <Stack.Navigator>
-                                <Stack.Screen component={Camera} name="Camera" options={{headerShown: false}}/>
-                                <Stack.Screen component={Gallery} name="Gallery"/>
-                            </Stack.Navigator>
-                        </NavigationContainer>
-                    {/*{<Text>asdasds</Text>}*/}
-                    </GalleryContextProvider>
-                    {/*</DatabaseContextProvider>*/}
+                    <DatabaseContextProvider>
+                        <GalleryContextProvider>
+                            <NavigationContainer>
+                                <Stack.Navigator>
+                                    <Stack.Screen component={Camera} name="Camera" options={{headerShown: false}}/>
+                                    <Stack.Screen component={Gallery} name="Gallery"/>
+                                </Stack.Navigator>
+                            </NavigationContainer>
+                            {/*{<Text>asdasds</Text>}*/}
+                        </GalleryContextProvider>
+                    </DatabaseContextProvider>
                 </PermissionsContextProvider>
             </StoreProvider>
         </View>

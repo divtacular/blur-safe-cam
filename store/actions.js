@@ -1,5 +1,6 @@
 import {types} from "./reducers";
 
+//abstraction of reducer actions
 const useActions = (state, dispatch) => ({
     addImage: (value) => {
         return dispatch({type: types.ADD_IMAGE, value});

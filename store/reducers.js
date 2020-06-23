@@ -6,7 +6,13 @@ export const types = {
 };
 
 export const reducer = (state, action) => {
-    const actions = {
+
+    if(!action) {
+        console.warn('reducer called without action')
+        return;
+    }
+
+   const actions = {
         SET_GALLERY: (state, value) => {
             return value && value.length ? [
                 ...value
@@ -14,8 +20,8 @@ export const reducer = (state, action) => {
         },
         ADD_IMAGE: (state, image) => {
             return [
-                ...state,
-                image
+                image,
+                ...state
             ]
         },
         REMOVE_IMAGE: (state, {id}) => {
