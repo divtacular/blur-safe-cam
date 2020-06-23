@@ -1,15 +1,16 @@
 /**
  * @Desc format a dispatch event in the require format
  * @param type {string} - The action to perform
- * @param value {object} - The new values
+ * @param value* {object} - The new values
  * @returns {{type: *, value: *}}
  */
-export const dispatchFormatter = (type, value) => {
+export const dispatchFormatter = (type, value = null) => {
     return {
         type,
         value
     };
 }
+
 
 export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimensions}) => {
     const {orgWidth, orgHeight} = originalImageDimensions;
@@ -32,6 +33,13 @@ export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimens
     }
 }
 
+/**
+ * @desc Scale a full-size face crop to fit in shown viewport over original image
+ * @param originalImageDimensions
+ * @param viewDimensions
+ * @param faceImage
+ * @returns {{offsetTop: number, scaledHeight: *, width: number, scaledWidth: number, offsetLeft: number, height: number}}
+ */
 export const scaleAndPositionFaceBlurRelatively = ({
                                                        originalImageDimensions,
                                                        viewDimensions,

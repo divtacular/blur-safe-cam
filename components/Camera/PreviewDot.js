@@ -5,17 +5,11 @@ import CameraStyles from "../../styles/Camera";
 import {ImageContext} from "../../contexts/imageContext";
 import {NavigationContext} from "@react-navigation/core";
 
-const PreviewDot = ({gallery}) => {
-    const navigation = React.useContext(NavigationContext);
-
-    const [preview, setPreview] = React.useState({});
-
-    React.useEffect(() => {
-        setPreview(gallery[0]);
-    }, [gallery]);
+const PreviewDot = ({preview}) => {
+    const {navigate} = React.useContext(NavigationContext);
 
     const handlePress = () => {
-        navigation.navigate('Gallery');
+        navigate('Gallery');
     };
 
     return (
@@ -25,4 +19,4 @@ const PreviewDot = ({gallery}) => {
     );
 };
 
-export default PreviewDot;
+export default React.memo(PreviewDot);
