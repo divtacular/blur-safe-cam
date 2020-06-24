@@ -1,3 +1,4 @@
+import faceDetect from '../services/faceDetect';
 import databaseActions from "../services/database";
 import filesystemActions from "../services/filesystem";
 
@@ -14,13 +15,25 @@ const middleWareActions = {
     },
     ADD_IMAGE: (action) => {
         //create asset
-        return filesystemActions.ADD_IMAGE(action.value).then((file) => {
+        return filesystemActions.ADD_IMAGE(action.value).then((asset) => {
             //add to DB
-            databaseActions.ADD_IMAGE(file);
+            Promise.all([faceDetect.DETECT_FACES(asset), databaseActions.ADD_IMAGE(asset)]).then((res) => {
+                const [faceDetectRes, rowInsertRes] = res;
+
+                const asset = {
+                    ...rowInsertRes,
+                    ...faceDetectRes
+                }
+                //try to update record with faceData. User could have delete image by now.
+                databaseActions.UPDATE_IMAGE(asset).catch(() => {
+                    console.log('update error, record deleted?');
+                });
+            });
+
             //dispatch file to state
             return {
                 ...action,
-                value: file
+                value: asset
             }
         }).catch(() => console.log('mw: 25'));
     }
@@ -37,8 +50,8 @@ const applyMiddleware = (dispatch) => {
             middlewareAction(action).then((res) => {
                 try {
                     dispatch(res);
-                } catch(e) {
-                    console.log(e);
+                } catch (e) {
+                    console.log('e:', e);
                 }
             }).catch(() => {
                 console.log('mw: 43');

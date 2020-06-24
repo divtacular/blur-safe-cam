@@ -1,13 +1,13 @@
 import ImagesDB from '../utils/database';
 
-const setGallery = async () => {
-    return await ImagesDB.query({
+const setGallery = () => {
+    return ImagesDB.query({
         columns: '*',
         order: 'id DESC'
     });
 };
 
-const addImage = async ({filename, id, uri, width, height}) => {
+const addImage = ({filename, id, uri, width, height}) => {
     const props = {
         name: filename,
         assetID: id,
@@ -17,15 +17,17 @@ const addImage = async ({filename, id, uri, width, height}) => {
         processed: false
     };
 
-    return await ImagesDB.create(props).catch(() => {
-        console.log('DB add error!');
-    });
+    return ImagesDB.create(props);
 }
 
+const updateImage = async (asset) => {
+    return ImagesDB.update(asset);
+}
 
 const databaseActions = {
     SET_GALLERY: setGallery,
-    ADD_IMAGE: addImage
+    ADD_IMAGE: addImage,
+    UPDATE_IMAGE: updateImage,
 }
 
 export default databaseActions;

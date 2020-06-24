@@ -86,9 +86,6 @@ const ImageContextProvider = (props) => {
             runClassifications: Constants.Classifications.none,
             minDetectionInterval: 100
         }).then(({faces}) => {
-
-            console.log('FACE DETECT RESULTS');
-
             if (faces.length) {
                 faces = faces.map((face) => {
                     return ({

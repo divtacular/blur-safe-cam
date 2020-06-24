@@ -41,7 +41,6 @@ const GalleryContextProvider = (props) => {
     // };
     //
 
-
     return (
         <GalleryContext.Provider value={{gallery, preview}}>
             {props.children}
