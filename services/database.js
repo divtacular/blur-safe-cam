@@ -21,7 +21,9 @@ const addImage = ({filename, id, uri, width, height}) => {
 }
 
 const updateImage = async (asset) => {
-    return ImagesDB.update(asset);
+    return ImagesDB.update(asset).then((res) => {
+        return asset;
+    });
 }
 
 const databaseActions = {

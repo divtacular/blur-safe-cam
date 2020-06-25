@@ -1,3 +1,5 @@
+import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
+
 /**
  * @Desc format a dispatch event in the require format
  * @param type {string} - The action to perform
@@ -73,8 +75,9 @@ export const constrainCropToImageDimensions = (cropPosition, {width, height}) =>
 
     //x must be more than 0. Set 0.
     //y must be more than 0. Set 0.
+    //w/h must not exceed image boundaries, constrain when needed
 
-    const validX =  cropPosition.x >= 0 ? cropPosition.x : 0;
+    const validX = cropPosition.x >= 0 ? cropPosition.x : 0;
     const validY = cropPosition.y <= width ? cropPosition.y : 0;
     const validWidth = cropPosition.x + cropPosition.width <= width ? cropPosition.width : width - cropPosition.x;
     const validHeight = cropPosition.y + cropPosition.height <= height ? cropPosition.height : height - cropPosition.y;
@@ -87,6 +90,60 @@ export const constrainCropToImageDimensions = (cropPosition, {width, height}) =>
     }
 }
 
+/**
+ * @desc Crop detected faces from given image and array of coords.
+ * @param asset - image record with a uri to fullsized, width, height and faceData
+ * @returns {Promise<[]>} - Array of cropped faces asynchronously
+ */
+export const cropFaces = async ({faceData, uri, width, height}) => {
+    const faceCoords = (faceData && JSON.parse(faceData)) || [];
+    if (!faceCoords.length) {
+        return;
+    }
+
+    //Process cropping in SEQUENCE to conserve CPU resource
+    const faces = [];
+    for (let coord of faceCoords) {
+
+        coord = constrainCropToImageDimensions(coord, {width, height});
+        const crop = await manipulateAsync(
+            uri,
+            [{
+                crop: {
+                    originX: coord.x,
+                    originY: coord.y,
+                    width: coord.width,
+                    height: coord.height
+                }
+            }],
+            {compress: 1, format: SaveFormat.JPEG}
+        )
+            .catch((error) => {
+                return console.warn(error);
+            })
+        faces.push({...coord, ...crop});
+    }
+    return faces;
+};
+
+/**
+ * @desc custom key to manage efficient GallerySwiper re-renders
+ * @param image
+ * @returns {*}
+ */
+export const createRefKeyForImage = (image, activeID, blurFaces) => {
+    const showFaces = blurFaces && activeID === image.id ? 1 : 0;
+    return `${getFileNameExt(image.name)}#${showFaces}`;
+};
+
 export const getFileNameExt = (path) => {
     return path.split('/').pop().split('.')
+}
+
+//UUID function https://www.arungudelli.com/tutorial/javascript/how-to-create-uuid-guid-in-javascript-with-examples/
+export const createUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }

@@ -17,30 +17,6 @@ const GalleryContextProvider = (props) => {
         }
     }, [gallery]);
 
-    //actions.triggerAction("data")
-    //
-    // React.useEffect(() => {
-    //     exposedValues.populateGallery();
-    // }, []);
-    //
-    // populateGallery = async () => {
-    //     const images = await getAllRows();
-    //     dispatch(dispatchFormatter('SET_GALLERY', images));
-    // };
-    //
-    // addToGallery = (image) => {
-    //     dispatch(dispatchFormatter('ADD_IMAGE', image));
-    // };
-    //
-    // removeFromGallery = ({id}) => {
-    //     dispatch(dispatchFormatter('REMOVE_IMAGE', id));
-    // };
-    //
-    // updateImage = (image) => {
-    //     dispatch(dispatchFormatter('UPDATE_IMAGE', image));
-    // };
-    //
-
     return (
         <GalleryContext.Provider value={{gallery, preview}}>
             {props.children}

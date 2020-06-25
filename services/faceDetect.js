@@ -6,6 +6,8 @@ const detectFaces = async (asset) => {
         return;
     }
 
+    //return JSON.stringify([]);
+
     return detectFacesAsync(asset.uri, {
         mode: Constants.Mode.fast,
         detectLandmarks: Constants.Landmarks.none,

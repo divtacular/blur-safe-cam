@@ -7,12 +7,12 @@ export const types = {
 
 export const reducer = (state, action) => {
 
-    if(!action) {
+    if (!action) {
         console.warn('reducer called without action')
         return;
     }
 
-   const actions = {
+    const actions = {
         SET_GALLERY: (state, value) => {
             return value && value.length ? [
                 ...value
@@ -24,14 +24,14 @@ export const reducer = (state, action) => {
                 ...state
             ]
         },
+        UPDATE_IMAGE: (state, updatedAsset) => {
+            return state.map((image) => {
+                return image.id === updatedAsset.id ? updatedAsset : image;
+            });
+        },
         REMOVE_IMAGE: (state, {id}) => {
             return state.filter(image => image.id !== id);
         },
-        UPDATE_IMAGE: (state, asset) => {
-            return state.map((image) => {
-                return image.id === asset.id ? asset : image;
-            });
-        }
     };
 
     return actions[action.type](state, action.value) || console.error(`Invalid action type: ${action.type}`);

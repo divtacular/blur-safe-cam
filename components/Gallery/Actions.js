@@ -10,15 +10,13 @@ import {getAssetInfoAsync} from "expo-media-library";
 
 const iconSize = GalleryStyles.bottomBarActions.icons.fontSize;
 
-const Actions = ({activeImage, applyFaceData, blurredFacesState}) => {
-    const {removeFromGallery} = React.useContext(ImageContext);
-
-    const [blurredFaces, setBlurredFaces] = blurredFacesState;
+const Actions = ({activeImage, isShowingBlurredFaces, actions}) => {
+    const {blurFaces, deleteImage, saveImage, resetImage} = actions;
+    const [animatedValue] = React.useState(new Animated.Value(0.1));
     const [hasFaceData, setHasFaceData] = React.useState(false);
-    const [animatedValue] = React.useState(new Animated.Value(0.3))
 
     React.useEffect(() => {
-        setHasFaceData(activeImage && Object.keys(activeImage).includes('faceData'));
+        setHasFaceData(Object.keys(activeImage).includes('faceData'));
     }, [activeImage]);
 
     React.useEffect(() => {
@@ -28,30 +26,14 @@ const Actions = ({activeImage, applyFaceData, blurredFacesState}) => {
         }).start();
     }, [hasFaceData]);
 
-    const saveImage = () => {
-
-    }
-
-    const editImage = () => {
-    }
-
-    const deleteImage = () => {
-        removeFromGallery(activeImage);
-    }
-
-    const resetImage = () => {
-        setBlurredFaces(false);
-    }
-
     const defaultActions = () => {
-        //blurredFaces
         return (
             <>
                 <TouchableOpacity
                     accessible={true}
                     accessibilityLabel="Apply blur to faces"
                     accessibilityHint={`Apply blur to faces found in the image shown`}
-                    onPress={applyFaceData}
+                    onPress={blurFaces}
                     style={GalleryStyles.bottomBarActions.item.portrait}
                 >
                     <ActivityIndicator animating={!hasFaceData} size={60} color="#fff" style={{
@@ -105,8 +87,8 @@ const Actions = ({activeImage, applyFaceData, blurredFacesState}) => {
     return (
         <View style={GalleryStyles.bottomBarActions.wrapper}>
             <View style={GalleryStyles.bottomBarActions}>
-                {!blurredFaces && defaultActions()}
-                {blurredFaces && saveActions()}
+                {!isShowingBlurredFaces && defaultActions()}
+                {!!isShowingBlurredFaces && saveActions()}
             </View>
         </View>
     )
