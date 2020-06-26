@@ -68,8 +68,8 @@ const applyMiddleware = (dispatch) => {
                     dispatch(action);
                     console.log('e:', e);
                 }
-            }).catch(() => {
-                console.log('mw: 43');
+            }).catch((e) => {
+                console.log('mw: 43', e);
             });
         } else {
             return dispatch(action);

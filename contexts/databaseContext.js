@@ -12,10 +12,6 @@ const DatabaseContextProvider = (props) => {
         // });
     }, []);
 
-    // //Return promise
-    // const deleteRow = (id) => {
-    //     return ImagesDB.destroy(id);
-    // };
 
     return (
         <DatabaseContext.Provider>
