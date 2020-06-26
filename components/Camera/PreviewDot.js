@@ -1,14 +1,14 @@
 import React from 'react';
 import {View, TouchableHighlight, Image, TouchableOpacity} from "react-native";
-import CameraStyles from "../../styles/Camera";
-
-import {ImageContext} from "../../contexts/imageContext";
 import {NavigationContext} from "@react-navigation/core";
+
+import CameraStyles from "../../styles/Camera";
 
 const PreviewDot = ({preview}) => {
     const {navigate} = React.useContext(NavigationContext);
 
     const handlePress = () => {
+
         navigate('Gallery');
     };
 

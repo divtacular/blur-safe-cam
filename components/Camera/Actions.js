@@ -12,7 +12,7 @@ import {ICONS, FLASH_ORDER} from "../../constants/camera";
 const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
 const Actions = ({cameraRef, actions}) => {
-    const {gallery, reducerActions} = React.useContext(StoreContext);
+    const {reducerActions} = React.useContext(StoreContext);
     const {mediaLibraryPermission} = React.useContext(PermissionsContext);
 
     const [flash, setFlash] = actions.flashState;
@@ -49,55 +49,10 @@ const Actions = ({cameraRef, actions}) => {
             cameraRef.current.takePictureAsync().then((res) => {
                 reducerActions.addImage(res);
             }).catch(()=>{
-                console.log('take picture')
+                console.log('error: take picture')
             });
-
-
-            // cameraRef.current.takePictureAsync({
-            //     //exif: true,
-            //     skipProcessing: true,
-            //     onPictureSaved: async (capture) => {
-            //         const asset = await saveToMediaLibrary(capture);
-            //         asset.processed = false;
-            //
-            //         // ImagesDB.create(asset).then((res) => {
-            //         //     asset.id = res.id;
-            //         //     setFaceData(asset);
-            //         //     addToGallery({
-            //         //         id: res.id,
-            //         //         ...image
-            //         //     });
-            //         // });
-            //     }
-            // });
         }
     };
-
-//     const saveToMediaLibrary = async (photo) => {
-//         const asset = await createAssetAsync(photo.uri);
-//         //Move asset to album, can't create empty album on Android
-//         // //"-280988523"
-//         // console.log('- - - - - - -');
-// // console.log(asset)
-//         // await createAlbumAsync(ALBUM_NAME, asset, true)
-//         //     .then(({id}) => {
-//         //         MediaLibrary.getAssetsAsync({
-//         //             album: id
-//         //         }).then(({assets}) => {
-//         //             //console.log(assets[assets.length -1]);
-//         //             assets.forEach((a) => {
-//         //                 if(a.filename === asset.filename) {
-//         //                     console.log(a);
-//         //                 }
-//         //             })
-//         //             console.log('- - - - - - -');
-//         //         });
-//         //     })
-//         //     .catch(error => console.warn(error.message));
-//
-//         photo.assetID = asset.id;
-//         return photo;
-//     };
 
     if (!mediaLibraryPermission) {
         return (

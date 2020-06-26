@@ -11,7 +11,6 @@ const GalleryImage = (props) => {
         <View key={props.image.assetID} style={{flex: 1, backgroundColor: '#444'}} onLayout={(event) => {
             setViewDimensions({...event.nativeEvent.layout})
         }}>
-            {console.log(props.image)}
             <ImageBackground {...props}>
 
                 {viewDimensions && croppedFaces && croppedFaces.map((faceImage, i) => {

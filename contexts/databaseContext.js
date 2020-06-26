@@ -12,34 +12,10 @@ const DatabaseContextProvider = (props) => {
         // });
     }, []);
 
-    // const addRow = (asset) => {
-    //     const { id, ...image } = asset;
-    //     image.assetID = id || null;
-    //     return ImagesDB.create(image);
-    // };
-    //
     // //Return promise
     // const deleteRow = (id) => {
     //     return ImagesDB.destroy(id);
     // };
-    //
-    // //Return promise
-    // const modifyRow = (asset) => {
-    //     return ImagesDB.update(asset)
-    // };
-    //
-    // //Return promise
-    // const getRow = (id) => {
-    //     return ImagesDB.find(id);
-    // };
-    //
-    // //Return promise
-    // const getAllRows = () => {
-    //     return ImagesDB.query({
-    //         columns: '*',
-    //         order: 'id DESC'
-    //     });
-    // }
 
     return (
         <DatabaseContext.Provider>

@@ -14,6 +14,8 @@ const GalleryContextProvider = (props) => {
     React.useEffect(() => {
         if (gallery && gallery.length) {
             setPreview(gallery[0]);
+        } else {
+            setPreview(false);
         }
     }, [gallery]);
 

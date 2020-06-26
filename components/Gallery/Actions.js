@@ -3,10 +3,7 @@ import {ActivityIndicator, Animated, TouchableOpacity, View} from "react-native"
 import {MaterialCommunityIcons as IconMat} from "@expo/vector-icons";
 import {ICONS} from "../../constants/gallery";
 
-import {ImageContext} from "../../contexts/imageContext";
-
 import GalleryStyles from "../../styles/Gallery";
-import {getAssetInfoAsync} from "expo-media-library";
 
 const iconSize = GalleryStyles.bottomBarActions.icons.fontSize;
 

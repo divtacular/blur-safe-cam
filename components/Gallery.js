@@ -1,17 +1,22 @@
 import React from 'react';
 import {View, Text, Vibration} from 'react-native'
 import GallerySwiper from "react-native-gallery-swiper";
+import {NavigationContext} from "@react-navigation/core";
 
 import {GalleryContext} from "../contexts/galleryContext";
 
 import Actions from './Gallery/Actions';
 import GalleryImage from "./Gallery/GalleryImage";
 import {createRefKeyForImage, cropFaces} from "../utils/helpers";
+import {StoreContext} from "../store/StoreContext";
 
 let activeSlide = false;
 
 const Gallery = () => {
     const {gallery} = React.useContext(GalleryContext);
+    const {navigate} = React.useContext(NavigationContext);
+    const {reducerActions} = React.useContext(StoreContext);
+
     const [images, setImages] = React.useState(gallery);
     const [activeImage, setActiveImage] = React.useState([]);
     const [croppedFaces, setCroppedFaces] = React.useState([]);
@@ -26,6 +31,12 @@ const Gallery = () => {
             setActiveImage(gallery[activeSlide]);
         }
     }, [gallery]);
+
+    React.useEffect(() => {
+        if(!gallery.length) {
+            navigate('Camera');
+        }
+    }, [gallery])
 
     React.useEffect(() => {
         //Refresh key on gallery slide to trigger rerender
@@ -43,14 +54,15 @@ const Gallery = () => {
     }, [croppedFaces]);
 
     const blurFaces = async () => {
-
         if (activeImage.faceData && JSON.parse(activeImage.faceData).length) {
             setCroppedFaces(await cropFaces(activeImage));
         }
     };
+
     const deleteImage = () => {
-        console.log('delete image');
+        reducerActions.removeImage(activeImage);
     };
+
     const saveImage = () => {
         console.log('save image');
         //full screen, use hidden view
@@ -77,7 +89,6 @@ const Gallery = () => {
                 images={images}
                 imageComponent={GalleryImageRenderer}
                 initialNumToRender={2}
-                //initialPage={currentPage}
                 enableResistance={false}
                 enableScale={false}
                 enableTranslate={false}

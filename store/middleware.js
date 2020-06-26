@@ -26,13 +26,8 @@ const middleWareActions = {
                     ...rowInsertRes,
                     faceData: faceDetectRes
                 };
-
+                //dispatch new event with facedata ... data.
                 (applyMiddleware(dispatcher))({type: types.UPDATE_IMAGE, value});
-
-                //try to update record with faceData. User could have delete image by now.
-                // databaseActions.UPDATE_IMAGE(asset).catch(() => {
-                //     console.log('update error, record deleted?');
-                // });
             });
 
             //dispatch file to state
@@ -49,6 +44,12 @@ const middleWareActions = {
         }).catch(() => {
             console.log('update error, record deleted?');
         });
+    },
+    REMOVE_IMAGE: (action) => {
+        filesystemActions.REMOVE_IMAGE(action.value);
+        return databaseActions.REMOVE_IMAGE(action.value).then(() => {
+            return action;
+        });
     }
 };
 
@@ -58,13 +59,13 @@ const applyMiddleware = (dispatch) => {
 
     return (action) => {
         const middlewareAction = middleWareActions[action.type];
-        console.log(middlewareAction);
         if (middlewareAction) {
             //if action found, pass through middleware
             middlewareAction(action).then((res) => {
                 try {
                     dispatch(res);
                 } catch (e) {
+                    dispatch(action);
                     console.log('e:', e);
                 }
             }).catch(() => {

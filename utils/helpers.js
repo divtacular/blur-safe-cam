@@ -137,7 +137,7 @@ export const createRefKeyForImage = (image, activeID, blurFaces) => {
 };
 
 export const getFileNameExt = (path) => {
-    return path.split('/').pop().split('.')
+    return path && path.split('/').pop().split('.');
 }
 
 //UUID function https://www.arungudelli.com/tutorial/javascript/how-to-create-uuid-guid-in-javascript-with-examples/

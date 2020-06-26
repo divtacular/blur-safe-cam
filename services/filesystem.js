@@ -1,4 +1,4 @@
-import {createAssetAsync} from "expo-media-library";
+import {createAssetAsync, deleteAssetsAsync} from "expo-media-library";
 
 const addImage = async ({uri}) => {
     return await createAssetAsync(uri);
@@ -27,8 +27,13 @@ const addImage = async ({uri}) => {
         // return photo;
 };
 
+const removeImage = async ({assetID}) => {
+    return await deleteAssetsAsync([assetID.toString()]);
+};
+
 const filesystemActions = {
-    ADD_IMAGE: addImage
+    ADD_IMAGE: addImage,
+    REMOVE_IMAGE: removeImage
 }
 
 export default filesystemActions;

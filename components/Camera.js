@@ -2,7 +2,6 @@ import React from 'react';
 import {Image, TouchableOpacity, Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
 
-import {ImageContext} from "../contexts/imageContext";
 import {GalleryContext} from "../contexts/galleryContext";
 import {PermissionsContext} from "../contexts/permissionsContext";
 
@@ -15,7 +14,7 @@ import {useIsFocused} from '@react-navigation/native';
 
 const CameraView = () => {
     const isFocused = useIsFocused();
-    const {gallery, preview} = React.useContext(GalleryContext);
+    const {preview} = React.useContext(GalleryContext);
     const {cameraPermission} = React.useContext(PermissionsContext);
 
     const [zoom, setZoom] = React.useState(0);
@@ -24,10 +23,6 @@ const CameraView = () => {
     const [cameraSource, setCameraSource] = React.useState(Camera.Constants.Type.back);
 
     const camera = React.useRef();
-
-    // React.useEffect(() => {
-    //     gallery.length && setPreview(gallery[0])
-    // }, [gallery]);
 
     const setRatio = () => {
         (async () => {

@@ -46,4 +46,4 @@ const BlurredFace = ({activeImage, faceImage, index, viewDimensions}) => {
     );
 };
 
-export default BlurredFace;
+export default React.memo(BlurredFace);
