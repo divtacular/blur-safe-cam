@@ -8,7 +8,6 @@ const PreviewDot = ({preview}) => {
     const {navigate} = React.useContext(NavigationContext);
 
     const handlePress = () => {
-
         navigate('Gallery');
     };
 

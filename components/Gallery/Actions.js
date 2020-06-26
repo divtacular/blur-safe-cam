@@ -13,6 +13,8 @@ const Actions = ({activeImage, isShowingBlurredFaces, actions}) => {
     const [hasFaceData, setHasFaceData] = React.useState(false);
 
     React.useEffect(() => {
+        //console.log('ACTIVEIMAGE CHANGED', activeImage);
+        //console.log('-----')
         setHasFaceData(Object.keys(activeImage).includes('faceData'));
     }, [activeImage]);
 
