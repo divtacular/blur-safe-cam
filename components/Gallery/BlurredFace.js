@@ -3,7 +3,7 @@ import {Image} from "react-native";
 
 import {scaleAndPositionFaceBlurRelatively} from "../../utils/helpers";
 
-const BlurredFace = ({activeImage, faceImage, index, viewDimensions}) => {
+const BlurredFace = ({activeImage, faceImage, index, viewDimensions, isSelected}) => {
     const originalImageDimensions = {
         orgWidth: activeImage.width,
         orgHeight: activeImage.height
@@ -28,9 +28,10 @@ const BlurredFace = ({activeImage, faceImage, index, viewDimensions}) => {
                 borderRadius: 100,
                 borderTopLeftRadius: 25,
                 borderTopRightRadius: 25,
-                borderBottomLeftRadius: 15,
-                borderBottomRightRadius: 15,
-                borderWidth: 1,
+                borderBottomLeftRadius: 150,//15,
+                borderBottomRightRadius: 150,//15,
+                borderWidth: isSelected ? 1 : 0,
+                borderColor: isSelected ? '#ff8a63' : 'black'
             }}
             transform={[
                 {perspective: 600},

@@ -6,8 +6,7 @@ import {AppLoading} from 'expo';
 
 import StoreProvider from "./store/StoreContext";
 import GalleryContextProvider from "./contexts/galleryContext";
-import DatabaseContextProvider from "./contexts/databaseContext";
-import PermissionsContextProvider, {PermissionsContext} from "./contexts/permissionsContext";
+import PermissionsContextProvider from "./contexts/permissionsContext";
 
 import Camera from './components/Camera';
 import Gallery from './components/Gallery';
@@ -23,7 +22,7 @@ const App = () => {
     };
 
     const cacheResources = async () => {
-
+        //load fonts
     };
 
     if (!isLoaded) {
