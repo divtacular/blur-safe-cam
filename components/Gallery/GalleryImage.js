@@ -12,13 +12,13 @@ const GalleryImage = (props) => {
             setViewDimensions({...event.nativeEvent.layout})
         }}>
             <ImageBackground {...props}>
-
                 {viewDimensions && croppedFaces && croppedFaces.map((faceImage, i) => {
                     return <BlurredFace
                         activeImage={activeImage}
                         faceImage={faceImage}
                         index={i}
                         viewDimensions={viewDimensions}
+                        isSelected={faceImage.isSelected}
                     />
                 })
                 }

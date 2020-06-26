@@ -126,14 +126,55 @@ export const cropFaces = async ({faceData, uri, width, height}) => {
     return faces;
 };
 
+export const mapLongPressToBlurredFace = ({tapCoords, croppedFaces, viewDimensions, originalImageDimensions}) => {
+    let pressedIndex = false;
+
+    croppedFaces.forEach((faceImage, index) => {
+        if (pressedIndex) {
+            return;
+        }
+
+        const {offsetTop, offsetLeft, height, width} = scaleAndPositionFaceBlurRelatively({
+            originalImageDimensions,
+            viewDimensions,
+            faceImage
+        });
+
+        //check if tap is in bounds
+        const validXStart = offsetLeft <= tapCoords.x;
+        const validXEnd = offsetLeft + width >= tapCoords.x;
+        const validYStart = offsetTop <= tapCoords.y;
+        const validYEnd = offsetTop + height >= tapCoords.y;
+
+        if (validXStart && validXEnd && validYStart && validYEnd) {
+            pressedIndex = index;
+        }
+    });
+
+    if (pressedIndex === false) {
+        return ({
+            isModifying: false
+        });
+    } else {
+        return ({
+            isModifying: true,
+            modifyIndex: pressedIndex
+        });
+    }
+}
+
 /**
  * @desc custom key to manage efficient GallerySwiper re-renders
  * @param image
+ * @param activeID
+ * @param blurFaces
+ * @param isModifyBlur
  * @returns {*}
  */
-export const createRefKeyForImage = (image, activeID, blurFaces) => {
+export const createRefKeyForImage = (image, activeID, blurFaces, isModifyBlur) => {
     const showFaces = blurFaces && activeID === image.id ? 1 : 0;
-    return `${getFileNameExt(image.name)}#${showFaces}`;
+    const hasActiveBlur = (showFaces && isModifyBlur.isModifying) && isModifyBlur.modifyIndex >= 0 ? 1 : 0;
+    return `${getFileNameExt(image.name)}#${showFaces}#${hasActiveBlur}`;
 };
 
 export const getFileNameExt = (path) => {
