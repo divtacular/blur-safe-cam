@@ -2,10 +2,8 @@ import React from 'react';
 import {Image, TouchableOpacity, Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
 
-import {NavigationContext} from '@react-navigation/core';
-import {ImageContext} from "../contexts/imageContext";
+import {GalleryContext} from "../contexts/galleryContext";
 import {PermissionsContext} from "../contexts/permissionsContext";
-import * as ScreenOrientation from "expo-screen-orientation";
 
 import Actions from "./Camera/Actions";
 import Zoom from "./Camera/Zoom";
@@ -13,13 +11,11 @@ import PreviewDot from './Camera/PreviewDot'
 
 import CameraStyles from '../styles/Camera';
 import {useIsFocused} from '@react-navigation/native';
-import {set} from "react-native-reanimated";
 
 const CameraView = () => {
-    const {gallery} = React.useContext(ImageContext);
-    const {cameraPermission} = React.useContext(PermissionsContext);
-
     const isFocused = useIsFocused();
+    const {preview} = React.useContext(GalleryContext);
+    const {cameraPermission} = React.useContext(PermissionsContext);
 
     const [zoom, setZoom] = React.useState(0);
     const [flash, setFlash] = React.useState('off');
@@ -35,11 +31,11 @@ const CameraView = () => {
                 const compatibleRatio = ratios.pop();
                 setAspectRatio(compatibleRatio);
             }
-            //const pictureSize = await camera.current.getAvailablePictureSizesAsync(aspectRatio);
-            //console.log(pictureSize);
         })();
-    }
+    };
 
+    //TODO component for awaiting permissions or Gallery loading state
+    //<PermissionComponent text={} />
     if (!cameraPermission) {
         return <View>
             <View>
@@ -64,15 +60,8 @@ const CameraView = () => {
                     onLoad={() => {
                         console.log('loaded')
                     }}
-
-                    // pictureSize={'1920x1080'}
-                    // autoFocus={true}
-                    // useCamera2Api={true}
-                    // onMountError={(e) => {
-                    //     console.log(e);
-                    // }}
                 >
-                    {gallery.length > 0 && <PreviewDot gallery={gallery}/>}
+                    {preview && <PreviewDot preview={preview}/>}
                 </Camera>
                 }
             </Zoom>

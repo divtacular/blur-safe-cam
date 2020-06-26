@@ -24,6 +24,7 @@ export default class ImagesDB extends BaseModel {
     static get columnMapping() {
         return {
             id: {type: types.INTEGER, primary_key: true}, // For while only supports id as primary key
+            assetID: {type: types.INTEGER, unique: true, not_null: true},
             processed: {type: types.BOOLEAN, default: false},
             name: {type: types.TEXT, not_null: true, unique: true},
             uri: {type: types.TEXT, unique: true},

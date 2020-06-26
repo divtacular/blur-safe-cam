@@ -2,24 +2,18 @@ import React from 'react';
 import {Text, TouchableOpacity, View} from "react-native";
 import {Camera} from "expo-camera";
 import {MaterialCommunityIcons as IconMat} from '@expo/vector-icons';
-import {createAlbumAsync, createAssetAsync} from "expo-media-library";
 
-import {ImageContext} from "../../contexts/imageContext";
+import {StoreContext} from "../../store/StoreContext";
 import {PermissionsContext} from "../../contexts/permissionsContext";
 
 import CameraStyles from "../../styles/Camera";
-import {ALBUM_NAME} from "../../constants/app";
 import {ICONS, FLASH_ORDER} from "../../constants/camera";
-import ImagesDB from "../../utils/database";
-import {getFileNameExt} from "../../utils/helpers";
-import * as MediaLibrary from "expo-media-library";
 
 const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
 const Actions = ({cameraRef, actions}) => {
-
+    const {reducerActions} = React.useContext(StoreContext);
     const {mediaLibraryPermission} = React.useContext(PermissionsContext);
-    const {addToGallery, setFaceData} = React.useContext(ImageContext);
 
     const [flash, setFlash] = actions.flashState;
     const [cameraSource, setCameraSource] = actions.cameraSourceState;
@@ -28,45 +22,11 @@ const Actions = ({cameraRef, actions}) => {
 
     React.useEffect(() => {
         const cameraSourceIconName = Camera.Constants.Type.front === cameraSource ? 'front' : 'rear';
-        const newIcons = {
+        setIcons({
             flash: ICONS.FLASH_ICONS[flash],
             camera: ICONS.CAMERA_SOURCE_ICONS[cameraSourceIconName]
-        };
-        setIcons(newIcons);
+        });
     }, [flash, cameraSource]);
-
-    const takePicture = () => {
-        if (cameraRef) {
-            cameraRef.current.takePictureAsync({
-                //exif: true,
-                skipProcessing: true,
-                onPictureSaved: async (capture) => {
-                    const [name] = getFileNameExt(capture.uri);
-                    const asset = await saveToMediaLibrary(capture);
-
-                    console.log(capture.exif);
-
-                    const image = {
-                        name,
-                        uri: asset.uri,
-                        width: asset.width,
-                        height: asset.height,
-                        assetID: asset.assetID,
-                        processed: false
-                    };
-
-                    ImagesDB.create(image).then((res) => {
-                        asset.id = res.id;
-                        setFaceData(asset);
-                        addToGallery({
-                            id: res.id,
-                            ...image
-                        });
-                    });
-                }
-            });
-        }
-    };
 
     const toggleCameraSource = () => {
         setCameraSource(
@@ -84,30 +44,14 @@ const Actions = ({cameraRef, actions}) => {
         setFlash(FLASH_ORDER[keys[newIndex]]);
     };
 
-    const saveToMediaLibrary = async (photo) => {
-        const asset = await createAssetAsync(photo.uri);
-        //Move asset to album, can't create empty album on Android
-        // //"-280988523"
-        // console.log('- - - - - - -');
-// console.log(asset)
-        // await createAlbumAsync(ALBUM_NAME, asset, true)
-        //     .then(({id}) => {
-        //         MediaLibrary.getAssetsAsync({
-        //             album: id
-        //         }).then(({assets}) => {
-        //             //console.log(assets[assets.length -1]);
-        //             assets.forEach((a) => {
-        //                 if(a.filename === asset.filename) {
-        //                     console.log(a);
-        //                 }
-        //             })
-        //             console.log('- - - - - - -');
-        //         });
-        //     })
-        //     .catch(error => console.warn(error.message));
-
-        photo.assetID = asset.id;
-        return photo;
+    const takePicture = () => {
+        if (cameraRef) {
+            cameraRef.current.takePictureAsync().then((res) => {
+                reducerActions.addImage(res);
+            }).catch(()=>{
+                console.log('error: take picture')
+            });
+        }
     };
 
     if (!mediaLibraryPermission) {
