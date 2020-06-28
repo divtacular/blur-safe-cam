@@ -18,23 +18,20 @@ const middleWareActions = {
     ADD_IMAGE: (action) => {
         //create asset
         return filesystemActions.ADD_IMAGE(action.value).then((asset) => {
-            //add to DB
-            Promise.all([faceDetect.DETECT_FACES(asset), databaseActions.ADD_IMAGE(asset)]).then((res) => {
-                const [faceDetectRes, rowInsertRes] = res;
+            return databaseActions.ADD_IMAGE(asset).then((row) => {
+                faceDetect.DETECT_FACES(row).then((faceDetectRes) => {
+                    const value = {
+                        ...row,
+                        faceData: faceDetectRes
+                    };
+                    (applyMiddleware(dispatcher))({type: types.UPDATE_IMAGE, value});
+                })
 
-                const value = {
-                    ...rowInsertRes,
-                    faceData: faceDetectRes
-                };
-                //dispatch new event with facedata
-                (applyMiddleware(dispatcher))({type: types.UPDATE_IMAGE, value});
+                return {
+                    ...action,
+                    value: row
+                }
             });
-
-            //dispatch file to state
-            return {
-                ...action,
-                value: asset
-            }
         }).catch(() => console.log('mw: 25'));
     },
     UPDATE_IMAGE: (action) => {
