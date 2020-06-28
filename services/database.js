@@ -27,7 +27,7 @@ const updateImage = async (asset) => {
 }
 
 const removeImage = async({id}) => {
-    return imagesDB.destroy(id);
+    return ImagesDB.destroy(id);
 }
 
 const databaseActions = {

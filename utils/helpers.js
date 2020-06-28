@@ -106,6 +106,9 @@ export const cropFaces = async ({faceData, uri, width, height}) => {
     for (let coord of faceCoords) {
 
         coord = constrainCropToImageDimensions(coord, {width, height});
+        coord.isSelected = false; // default for if user selected this blur to edit
+        coord.isHidden = false; //default for tracking if user hide this blur
+
         const crop = await manipulateAsync(
             uri,
             [{
@@ -120,7 +123,7 @@ export const cropFaces = async ({faceData, uri, width, height}) => {
         )
             .catch((error) => {
                 return console.warn(error);
-            })
+            });
         faces.push({...coord, ...crop});
     }
     return faces;

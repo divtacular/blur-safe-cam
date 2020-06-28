@@ -7,22 +7,34 @@ import GalleryStyles from "../../styles/Gallery";
 
 const iconSize = GalleryStyles.bottomBarActions.icons.fontSize;
 
-const Actions = ({activeImage, isShowingBlurredFaces, actions}) => {
+const Actions = ({activeImage, actions}) => {
     const {blurFaces, deleteImage, saveImage, resetImage} = actions;
-    const [animatedValue] = React.useState(new Animated.Value(0.1));
+    const [faceAnimatedValue] = React.useState(new Animated.Value(0.3));
+    const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
     const [hasFaceData, setHasFaceData] = React.useState(false);
 
+    const isShowingBlurredFaces= false;
+
     React.useEffect(() => {
-        setHasFaceData(Object.keys(activeImage).includes('faceData'));
+        console.log(activeImage.faceData);
+        setHasFaceData(!!activeImage.faceData);
     }, [activeImage]);
 
     React.useEffect(() => {
-        hasFaceData && Animated.timing(animatedValue, {
+        hasFaceData && Animated.timing(faceAnimatedValue, {
             toValue: 1,
             duration: 300,
             useNativeDriver: true
         }).start();
     }, [hasFaceData]);
+
+    // React.useEffect(() => {
+    //     Animated.timing(actionsAnimatedValue, {
+    //         toValue: activeBlur === false ? 0 : 1,
+    //         duration: 100,
+    //         useNativeDriver: true
+    //     }).start();
+    // }, [activeBlur]);
 
     const defaultActions = () => {
         return (
@@ -37,7 +49,7 @@ const Actions = ({activeImage, isShowingBlurredFaces, actions}) => {
                     <ActivityIndicator animating={!hasFaceData} size={60} color="#fff" style={{
                         position: 'absolute',
                     }}/>
-                    <Animated.View style={{opacity: animatedValue}}>
+                    <Animated.View style={{opacity: faceAnimatedValue}}>
                         <IconMat name={ICONS.faceDetection}
                                  size={iconSize / 1.4}
                                  color={"#fff"}
@@ -83,12 +95,17 @@ const Actions = ({activeImage, isShowingBlurredFaces, actions}) => {
     }
 
     return (
-        <View style={GalleryStyles.bottomBarActions.wrapper}>
+        <Animated.View style={{...GalleryStyles.bottomBarActions.wrapper, transform: [{
+                translateY: actionsAnimatedValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 150]  // 0 : 150, 0.5 : 75, 1 : 0
+                }),
+            }]}}>
             <View style={GalleryStyles.bottomBarActions}>
                 {!isShowingBlurredFaces && defaultActions()}
                 {!!isShowingBlurredFaces && saveActions()}
             </View>
-        </View>
+        </Animated.View>
     )
 }
 
