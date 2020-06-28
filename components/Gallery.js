@@ -95,7 +95,8 @@ const Gallery = () => {
                                                     viewDimensions={viewDimensions}
             />}
 
-            <Actions activeImage={activeImage}
+            <Actions croppedFacesState={croppedFacesState}
+                     activeImage={activeImage}
                      actions={{blurFaces, deleteImage, saveImage, resetImage}}
             />
         </View>

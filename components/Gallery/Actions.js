@@ -7,16 +7,28 @@ import GalleryStyles from "../../styles/Gallery";
 
 const iconSize = GalleryStyles.bottomBarActions.icons.fontSize;
 
-const Actions = ({activeImage, actions}) => {
+const Actions = ({croppedFacesState, actions, activeImage}) => {
     const {blurFaces, deleteImage, saveImage, resetImage} = actions;
-    const [faceAnimatedValue] = React.useState(new Animated.Value(0.3));
-    const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
+    const [croppedFaces, setCroppedFaces] = croppedFacesState;
+
+    const [editingBlur, setEditingBlur] = React.useState(false);
+    const [activeBlur, setActiveBlur] = React.useState(false);
     const [hasFaceData, setHasFaceData] = React.useState(false);
 
-    const isShowingBlurredFaces= false;
+    const [faceAnimatedValue] = React.useState(new Animated.Value(0.1));
+    const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
 
     React.useEffect(() => {
-        console.log(activeImage.faceData);
+        setActiveBlur(croppedFaces.filter((face) => {
+            return face.isSelected
+        }).length > 0);
+    }, [croppedFaces]);
+
+    React.useEffect(() => {
+        setEditingBlur(croppedFaces.length > 0);
+    }, [croppedFaces])
+
+    React.useEffect(() => {
         setHasFaceData(!!activeImage.faceData);
     }, [activeImage]);
 
@@ -28,13 +40,13 @@ const Actions = ({activeImage, actions}) => {
         }).start();
     }, [hasFaceData]);
 
-    // React.useEffect(() => {
-    //     Animated.timing(actionsAnimatedValue, {
-    //         toValue: activeBlur === false ? 0 : 1,
-    //         duration: 100,
-    //         useNativeDriver: true
-    //     }).start();
-    // }, [activeBlur]);
+    React.useEffect(() => {
+        Animated.timing(actionsAnimatedValue, {
+            toValue: activeBlur === false ? 0 : 1,
+            duration: 100,
+            useNativeDriver: true
+        }).start();
+    }, [activeBlur]);
 
     const defaultActions = () => {
         return (
@@ -95,15 +107,17 @@ const Actions = ({activeImage, actions}) => {
     }
 
     return (
-        <Animated.View style={{...GalleryStyles.bottomBarActions.wrapper, transform: [{
+        <Animated.View style={{
+            ...GalleryStyles.bottomBarActions.wrapper, transform: [{
                 translateY: actionsAnimatedValue.interpolate({
                     inputRange: [0, 1],
                     outputRange: [0, 150]  // 0 : 150, 0.5 : 75, 1 : 0
                 }),
-            }]}}>
+            }]
+        }}>
             <View style={GalleryStyles.bottomBarActions}>
-                {!isShowingBlurredFaces && defaultActions()}
-                {!!isShowingBlurredFaces && saveActions()}
+                {!editingBlur && defaultActions()}
+                {editingBlur && saveActions()}
             </View>
         </Animated.View>
     )
