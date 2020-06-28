@@ -1,19 +1,17 @@
 import React from 'react';
-import {Animated, Image, TouchableHighlight, View} from "react-native";
+import {Animated, Image, TouchableHighlight} from "react-native";
 
 import {scaleAndPositionFaceBlurRelatively} from "../../utils/helpers";
 
-const BlurredFace = ({activeImage, faceImage, index, viewDimensions, isSelected, setIsSelected}) => {
-
-    //console.log(faceImage.isHidden);
-    const [visible, setVisibility] = React.useState(true);
+const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDimensions}) => {
+    const [croppedFaces, setCroppedFaces] = croppedFacesState;
+    const [removeFromFlow, setRemoveFromFlow] = React.useState(false)
     const [animatedValue] = React.useState(new Animated.Value(faceImage.isHidden ? 1 : 0)); //inverse, from Val
 
     const originalImageDimensions = {
         orgWidth: activeImage.width,
         orgHeight: activeImage.height
     };
-
     const {offsetTop, offsetLeft, height, width} = scaleAndPositionFaceBlurRelatively({
         originalImageDimensions,
         viewDimensions,
@@ -23,15 +21,22 @@ const BlurredFace = ({activeImage, faceImage, index, viewDimensions, isSelected,
     React.useEffect(() => {
         Animated.timing(animatedValue, {
             toValue: faceImage.isHidden ? 0 : 1,
-            duration: 300,
+            duration: 150,
             useNativeDriver: true
         }).start(() => {
-            setVisibility(faceImage.isHidden);
+            setRemoveFromFlow(faceImage.isHidden);
         });
-    }, []);
+    }, [croppedFaces]);
+
+    const setIsSelected = () => {
+        setCroppedFaces(croppedFaces.map((face, i) => {
+            face.isSelected = i === index;
+            return face;
+        }));
+    }
 
     return (
-        <Animated.View style={{
+        !removeFromFlow && <Animated.View style={{
             top: offsetTop,
             left: offsetLeft,
             height: height,
@@ -41,19 +46,18 @@ const BlurredFace = ({activeImage, faceImage, index, viewDimensions, isSelected,
             borderTopRightRadius: 25,
             borderBottomLeftRadius: 150,//15,
             borderBottomRightRadius: 150,//15,
-            opacity: isSelected ? animatedValue : faceImage.isHidden ? 0 : 1
+            opacity: faceImage.isSelected ? animatedValue : faceImage.isHidden ? 0 : 1
         }}>
-            <TouchableHighlight style={{
-                height: height,
-                width: width,
-                borderTopLeftRadius: 25,
-                borderTopRightRadius: 25,
-                borderBottomLeftRadius: 150,//15,
-                borderBottomRightRadius: 150,//15,
-            }}
-                                onPress={() => {
-                                    setIsSelected(index);
-                                }}>
+            <TouchableHighlight onPress={setIsSelected}
+                                style={{
+                                    height: height,
+                                    width: width,
+                                    borderTopLeftRadius: 25,
+                                    borderTopRightRadius: 25,
+                                    borderBottomLeftRadius: 150,//15,
+                                    borderBottomRightRadius: 150,//15,
+                                }}
+            >
                 <Image
                     blurRadius={15}
                     key={index}
@@ -66,7 +70,7 @@ const BlurredFace = ({activeImage, faceImage, index, viewDimensions, isSelected,
                         borderTopRightRadius: 25,
                         borderBottomLeftRadius: 150,//15,
                         borderBottomRightRadius: 150,//15,
-                        borderWidth: isSelected ? 1 : 0,
+                        borderWidth: faceImage.isSelected ? 1 : 0,
                         borderColor: '#ff8a63'
                     }}
                     transform={[
