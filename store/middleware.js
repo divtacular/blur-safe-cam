@@ -26,7 +26,7 @@ const middleWareActions = {
                     ...rowInsertRes,
                     faceData: faceDetectRes
                 };
-                //dispatch new event with facedata ... data.
+                //dispatch new event with facedata
                 (applyMiddleware(dispatcher))({type: types.UPDATE_IMAGE, value});
             });
 
