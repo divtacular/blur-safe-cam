@@ -11,4 +11,4 @@ const GalleryImage = (props) => {
     );
 };
 
-export default React.memo(GalleryImage);
+export default GalleryImage;

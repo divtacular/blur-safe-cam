@@ -12,7 +12,8 @@ import GalleryImage from "./Gallery/GalleryImage";
 import BlurredFaces from "./BlurredFaces";
 
 import {cropFaces} from "../utils/helpers";
-import BlurredFace from "./BlurredFaces/BlurredFace";
+
+let activeSlide = 0;
 
 const Gallery = () => {
     const {reducerActions} = React.useContext(StoreContext);
@@ -30,24 +31,23 @@ const Gallery = () => {
         if (!gallery.length) {
             navigate('Camera');
         }
-        setImages(gallery);
-        //update active slide data
-        if (activeImage) {
-            //refresh view of active image with facedata if required.
-            setActiveImage(gallery.filter((image) => {
-                return image.id === activeImage.id
-            }));
-        }
+        setImages(gallery.map((image) => {
+            return {
+                ...image,
+                key: image.id
+            }
+        }));
+    }, [gallery]);
+
+    //refresh view of active image after gallery updates.
+    React.useEffect(() => {
+        setActiveImage(gallery[activeSlide]);
     }, [gallery]);
 
     const blurFaces = async () => {
         if (activeImage.faceData && JSON.parse(activeImage.faceData).length) {
             setCroppedFaces(await cropFaces(activeImage));
         }
-    };
-
-    const deleteImage = () => {
-        reducerActions.removeImage(activeImage);
     };
 
     const saveImage = () => {
@@ -60,6 +60,10 @@ const Gallery = () => {
 
     const resetImage = () => {
         setCroppedFaces([]);
+    };
+
+    const deleteImage = () => {
+        reducerActions.removeImage(gallery[activeSlide]);
     };
 
     const GalleryImageRenderer = (props) => {
@@ -87,6 +91,7 @@ const Gallery = () => {
                 style={{flex: 1, backgroundColor: '#111'}}
                 onPageSelected={(idx) => {
                     setActiveImage(gallery[idx]);
+                    activeSlide = idx;
                 }}
             />
 

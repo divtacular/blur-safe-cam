@@ -1,12 +1,15 @@
 import React from 'react';
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {DeviceMotion} from 'expo-sensors';
+
 import {AppLoading} from 'expo';
 
 import StoreProvider from "./store/StoreContext";
 import GalleryContextProvider from "./contexts/galleryContext";
 import PermissionsContextProvider from "./contexts/permissionsContext";
+import OrientationContextProvider from "./contexts/orientationContext";
 
 import Camera from './components/Camera';
 import Gallery from './components/Gallery';
@@ -22,7 +25,7 @@ const App = () => {
     };
 
     const cacheResources = async () => {
-        //load fonts
+        //load fonts?
     };
 
     if (!isLoaded) {
@@ -38,16 +41,23 @@ const App = () => {
             {/*<DebugMediaFiles setMedia={setMedia}/>*/}
             {/*<DebugDatabase setDatabase={setDatabase}/>*/}
             <StoreProvider>
-                <PermissionsContextProvider>
-                    <GalleryContextProvider>
-                        <NavigationContainer>
-                            <Stack.Navigator>
-                                <Stack.Screen component={Camera} name="Camera" options={{headerShown: false}}/>
-                                <Stack.Screen component={Gallery} name="Gallery"/>
-                            </Stack.Navigator>
-                        </NavigationContainer>
-                    </GalleryContextProvider>
-                </PermissionsContextProvider>
+                <OrientationContextProvider>
+                    <PermissionsContextProvider>
+                        <GalleryContextProvider>
+                            <NavigationContainer>
+                                <Stack.Navigator>
+                                    <Stack.Screen component={Camera} name="Camera" options={{
+                                        headerShown: false,
+                                        unmountOnBlur: true
+                                    }}/>
+                                    <Stack.Screen component={Gallery} name="Gallery" options={{
+                                        unmountOnBlur: true
+                                    }}/>
+                                </Stack.Navigator>
+                            </NavigationContainer>
+                        </GalleryContextProvider>
+                    </PermissionsContextProvider>
+                </OrientationContextProvider>
             </StoreProvider>
         </View>
     );

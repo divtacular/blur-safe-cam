@@ -1,19 +1,5 @@
 import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
 
-/**
- * @Desc format a dispatch event in the require format
- * @param type {string} - The action to perform
- * @param value* {object} - The new values
- * @returns {{type: *, value: *}}
- */
-export const dispatchFormatter = (type, value = null) => {
-    return {
-        type,
-        value
-    };
-}
-
-
 export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimensions}) => {
     const {orgWidth, orgHeight} = originalImageDimensions;
 
@@ -23,8 +9,8 @@ export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimens
     if (orgWidth > orgHeight) { //landscape
         const scaledHeight = viewWidth * orgHeight / orgWidth;
         return {
-            width: viewWidth,
-            height: scaledHeight
+            scaledWidth: viewWidth,
+            scaledHeight: scaledHeight
         };
     } else { //portrait
         const scaledWidth = viewHeight * orgWidth / orgHeight;
@@ -48,7 +34,7 @@ export const scaleAndPositionFaceBlurRelatively = ({
                                                        faceImage
                                                    }) => {
 
-    const {orgHeight, orgWidth} = originalImageDimensions
+    const {orgHeight, orgWidth} = originalImageDimensions;
 
     const {scaledWidth, scaledHeight} = scaledImageDimensionsInView({
         originalImageDimensions,
@@ -68,7 +54,6 @@ export const scaleAndPositionFaceBlurRelatively = ({
         scaledWidth,
         scaledHeight
     };
-
 }
 
 export const constrainCropToImageDimensions = (cropPosition, {width, height}) => {
@@ -127,6 +112,47 @@ export const cropFaces = async ({faceData, uri, width, height}) => {
         faces.push({...coord, ...crop});
     }
     return faces;
+};
+
+export const getOrientation = (orientation) => {
+    if (!orientation) {
+        return {
+            orientation: 'portrait',
+            rotation: 0
+        }
+    }
+    const {beta, gamma} = orientation;
+
+    const ABSOLUTE_GAMMA = Math.abs(gamma);
+    const ABSOLUTE_BETA = Math.abs(beta);
+    const isGammaNegative = Math.sign(gamma) === -1;
+
+    if (ABSOLUTE_GAMMA <= 0.04 && ABSOLUTE_BETA <= 0.24) {
+        return {
+            orientation: 'portrait',
+            rotation: 0
+        };
+    } else if (
+        (ABSOLUTE_GAMMA <= 1.0 || ABSOLUTE_GAMMA >= 2.3) &&
+        ABSOLUTE_BETA >= 0.5
+    ) {
+        return {
+            orientation: 'portrait',
+            rotation: 0
+        };
+    } else {
+        if (isGammaNegative) {
+            return {
+                orientation: 'landscape',
+                rotation: -90
+            };
+        } else {
+            return {
+                orientation: 'landscape',
+                rotation: 90
+            };
+        }
+    }
 };
 
 export const mapLongPressToBlurredFace = ({tapCoords, croppedFaces, viewDimensions, originalImageDimensions}) => {

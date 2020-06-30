@@ -1,6 +1,7 @@
 import React from 'react';
 import {Image, TouchableOpacity, Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
+import {useIsFocused} from '@react-navigation/native';
 
 import {GalleryContext} from "../contexts/galleryContext";
 import {PermissionsContext} from "../contexts/permissionsContext";
@@ -10,7 +11,6 @@ import Zoom from "./Camera/Zoom";
 import PreviewDot from './Camera/PreviewDot'
 
 import CameraStyles from '../styles/Camera';
-import {useIsFocused} from '@react-navigation/native';
 
 const CameraView = () => {
     const isFocused = useIsFocused();
@@ -34,8 +34,8 @@ const CameraView = () => {
         })();
     };
 
-    //TODO component for awaiting permissions or Gallery loading state
-    //<PermissionComponent text={} />
+//TODO component for awaiting permissions or Gallery loading state
+//<PermissionComponent text={} />
     if (!cameraPermission) {
         return <View>
             <View>
@@ -57,9 +57,7 @@ const CameraView = () => {
                     type={cameraSource}
                     zoom={zoom}
                     style={CameraStyles.camera}
-                    onLoad={() => {
-                        console.log('loaded')
-                    }}
+                    skipProcessing={true}
                 >
                     {preview && <PreviewDot preview={preview}/>}
                 </Camera>

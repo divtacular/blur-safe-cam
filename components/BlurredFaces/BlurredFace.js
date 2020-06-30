@@ -12,6 +12,7 @@ const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDime
         orgWidth: activeImage.width,
         orgHeight: activeImage.height
     };
+
     const {offsetTop, offsetLeft, height, width} = scaleAndPositionFaceBlurRelatively({
         originalImageDimensions,
         viewDimensions,
@@ -48,15 +49,16 @@ const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDime
             borderBottomRightRadius: 150,//15,
             opacity: faceImage.isSelected ? animatedValue : faceImage.isHidden ? 0 : 1
         }}>
-            <TouchableHighlight onPress={setIsSelected}
-                                style={{
-                                    height: height,
-                                    width: width,
-                                    borderTopLeftRadius: 25,
-                                    borderTopRightRadius: 25,
-                                    borderBottomLeftRadius: 150,//15,
-                                    borderBottomRightRadius: 150,//15,
-                                }}
+            <TouchableHighlight
+                onPress={setIsSelected}
+                style={{
+                    height: height,
+                    width: width,
+                    borderTopLeftRadius: 25,
+                    borderTopRightRadius: 25,
+                    borderBottomLeftRadius: 150,//15,
+                    borderBottomRightRadius: 150,//15,
+                }}
             >
                 <Image
                     blurRadius={15}
