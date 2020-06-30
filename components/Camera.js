@@ -44,11 +44,13 @@ const CameraView = () => {
         </View>;
     }
 
+    if(!isFocused) {
+        return <View></View>
+    }
+
     return (
         <View style={CameraStyles.gestureWrapper}>
             <Zoom style={{flex: 1}} zoom={zoom} setZoom={setZoom}>
-
-                {isFocused &&
                 <Camera
                     flashMode={Camera.Constants.FlashMode[flash]}
                     onCameraReady={setRatio}
@@ -57,11 +59,11 @@ const CameraView = () => {
                     type={cameraSource}
                     zoom={zoom}
                     style={CameraStyles.camera}
+                    useCamera2Api={true}
                     skipProcessing={true}
                 >
                     {preview && <PreviewDot preview={preview}/>}
                 </Camera>
-                }
             </Zoom>
             <Actions
                 actions={{

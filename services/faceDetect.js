@@ -7,7 +7,7 @@ const detectFaces = async (asset) => {
     }
 
     return detectFacesAsync(asset.uri, {
-        mode: Constants.Mode.fast,
+        mode: Constants.Mode.accurate,
         detectLandmarks: Constants.Landmarks.none,
         runClassifications: Constants.Classifications.none,
         minDetectionInterval: 100

@@ -17,7 +17,7 @@ const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
 const Actions = ({cameraRef, actions}) => {
     const {reducerActions} = React.useContext(StoreContext);
-    const {orientationValues} = React.useContext(OrientationContext);
+    const {orientation} = React.useContext(OrientationContext);
     const {mediaLibraryPermission} = React.useContext(PermissionsContext);
 
     const [flash, setFlash] = actions.flashState;
@@ -51,12 +51,10 @@ const Actions = ({cameraRef, actions}) => {
     const takePicture = () => {
         if (cameraRef) {
             cameraRef.current.takePictureAsync().then((res) => {
-                const {orientation, rotation} = orientationValues;
-
-                if (rotation !== 0) {
+                if (orientation !== 0) {
                     manipulateAsync(
                         res.uri,
-                        [{rotate: rotation}],
+                        [{rotate: orientation}],
                         {compress: 1, format: SaveFormat.JPEG}
                     ).then((image) => {
                         reducerActions.addImage(image);

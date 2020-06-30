@@ -116,10 +116,7 @@ export const cropFaces = async ({faceData, uri, width, height}) => {
 
 export const getOrientation = (orientation) => {
     if (!orientation) {
-        return {
-            orientation: 'portrait',
-            rotation: 0
-        }
+        return 0;
     }
     const {beta, gamma} = orientation;
 
@@ -128,29 +125,17 @@ export const getOrientation = (orientation) => {
     const isGammaNegative = Math.sign(gamma) === -1;
 
     if (ABSOLUTE_GAMMA <= 0.04 && ABSOLUTE_BETA <= 0.24) {
-        return {
-            orientation: 'portrait',
-            rotation: 0
-        };
+        return 0
     } else if (
         (ABSOLUTE_GAMMA <= 1.0 || ABSOLUTE_GAMMA >= 2.3) &&
         ABSOLUTE_BETA >= 0.5
     ) {
-        return {
-            orientation: 'portrait',
-            rotation: 0
-        };
+        return 0;
     } else {
         if (isGammaNegative) {
-            return {
-                orientation: 'landscape',
-                rotation: -90
-            };
+            return -90;
         } else {
-            return {
-                orientation: 'landscape',
-                rotation: 90
-            };
+            return 90;
         }
     }
 };

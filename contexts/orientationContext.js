@@ -6,22 +6,22 @@ import {getOrientation} from "../utils/helpers";
 export const OrientationContext = createContext();
 
 const OrientationContextProvider = (props) => {
-    const [orientationValues, setOrientationValues] = React.useState({
-        orientation: 'portrait',
-        rotation: 0
-    });
+    const [orientation, setOrientation] = React.useState(0);
 
     React.useEffect(() => {
         DeviceMotion.isAvailableAsync().then(() => {
-            DeviceMotion.setUpdateInterval(500);
+            DeviceMotion.setUpdateInterval(300);
             DeviceMotion.addListener((motionEvent) => {
-                setOrientationValues(getOrientation(motionEvent.rotation));
+                const liveOrientation = getOrientation(motionEvent.rotation);
+                setOrientation((prev) => {
+                    return prev === liveOrientation ? prev : liveOrientation;
+                });
             });
         })
     }, []);
 
     return (
-        <OrientationContext.Provider value={{orientationValues}}>
+        <OrientationContext.Provider value={{orientation}}>
             {props.children}
         </OrientationContext.Provider>
     );

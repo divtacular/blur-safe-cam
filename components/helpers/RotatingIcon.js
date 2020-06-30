@@ -6,16 +6,16 @@ import {OrientationContext} from "../../contexts/orientationContext";
 
 const RotatingIcon = (props) => {
 
-    const {orientationValues} = React.useContext(OrientationContext);
+    const {orientation} = React.useContext(OrientationContext);
     const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
 
     React.useEffect(() => {
         Animated.timing(actionsAnimatedValue, {
-            toValue: orientationValues.rotation,
-            duration: 300,
+            toValue: orientation,
+            duration: 150,
             useNativeDriver: true
         }).start();
-    }, [orientationValues]);
+    }, [orientation]);
 
     return (
         <View style={CameraStyles.bottomBarActions.iconWrapper}>

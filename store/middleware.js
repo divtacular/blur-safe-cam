@@ -36,7 +36,7 @@ const middleWareActions = {
     },
     UPDATE_IMAGE: (action) => {
         return databaseActions.UPDATE_IMAGE(action.value).then(() => {
-            console.log('image updated');
+            //console.log('image updated');
             return action;
         }).catch(() => {
             console.log('update error, record deleted?');

@@ -8,16 +8,21 @@ const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDime
     const [removeFromFlow, setRemoveFromFlow] = React.useState(false)
     const [animatedValue] = React.useState(new Animated.Value(faceImage.isHidden ? 1 : 0)); //inverse, from Val
 
-    const originalImageDimensions = {
-        orgWidth: activeImage.width,
-        orgHeight: activeImage.height
-    };
+    const [positioning, setPositioning] = React.useState({});
 
-    const {offsetTop, offsetLeft, height, width} = scaleAndPositionFaceBlurRelatively({
-        originalImageDimensions,
-        viewDimensions,
-        faceImage
-    });
+    React.useEffect(() => {
+        const originalImageDimensions = {
+            orgWidth: activeImage.width,
+            orgHeight: activeImage.height
+        };
+
+        setPositioning(scaleAndPositionFaceBlurRelatively({
+            originalImageDimensions,
+            viewDimensions,
+            faceImage
+        }));
+
+    }, [croppedFaces])
 
     React.useEffect(() => {
         Animated.timing(animatedValue, {
@@ -34,14 +39,14 @@ const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDime
             face.isSelected = i === index;
             return face;
         }));
-    }
+    };
 
     return (
         !removeFromFlow && <Animated.View style={{
-            top: offsetTop,
-            left: offsetLeft,
-            height: height,
-            width: width,
+            top: positioning.offsetTop,
+            left: positioning.offsetLeft,
+            height: positioning.height,
+            width: positioning.width,
             position: 'absolute',
             borderTopLeftRadius: 25,
             borderTopRightRadius: 25,
@@ -52,8 +57,8 @@ const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDime
             <TouchableHighlight
                 onPress={setIsSelected}
                 style={{
-                    height: height,
-                    width: width,
+                    height: positioning.height,
+                    width: positioning.width,
                     borderTopLeftRadius: 25,
                     borderTopRightRadius: 25,
                     borderBottomLeftRadius: 150,//15,
@@ -65,8 +70,8 @@ const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDime
                     key={index}
                     source={{uri: faceImage.uri}}
                     style={{
-                        height: height,
-                        width: width,
+                        height: positioning.height,
+                        width: positioning.width,
                         borderRadius: 100,
                         borderTopLeftRadius: 25,
                         borderTopRightRadius: 25,
