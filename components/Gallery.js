@@ -4,10 +4,8 @@ import {View, Text} from 'react-native'
 import GallerySwiper from "react-native-gallery-swiper";
 import {
     lockAsync,
-    Orientation,
     OrientationLock,
-    addOrientationChangeListener,
-    removeOrientationChangeListeners
+    addOrientationChangeListener
 } from 'expo-screen-orientation';
 
 import {NavigationContext} from "@react-navigation/core";

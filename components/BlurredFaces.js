@@ -14,7 +14,7 @@ const BlurredFaces = ({activeImage, croppedFacesState, viewDimensions}) => {
                 return <BlurredFace
                     index={i}
                     activeImage={activeImage}
-                    faceImage={faceImage} //will pass isSelected and isHidden
+                    faceImage={faceImage}
                     viewDimensions={viewDimensions}
                     croppedFacesState={croppedFacesState}
                 />

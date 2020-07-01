@@ -2,7 +2,7 @@ import React from 'react';
 import {Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
 import {useIsFocused} from '@react-navigation/native';
-import * as ScreenOrientation from 'expo-screen-orientation';
+import {lockAsync, OrientationLock} from 'expo-screen-orientation';
 
 import {GalleryContext} from "../contexts/galleryContext";
 import {PermissionsContext} from "../contexts/permissionsContext";
@@ -27,7 +27,7 @@ const CameraView = ({navigation}) => {
 
     React.useEffect(() => {
         navigation.addListener('focus', () => {
-            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
+            lockAsync(OrientationLock.PORTRAIT)
         });
     }, [navigation]);
 

@@ -1,5 +1,4 @@
 import {Constants, detectFacesAsync} from "expo-face-detector";
-import ImagesDB from "../utils/database";
 
 const detectFaces = async (asset) => {
     if (!asset) {
