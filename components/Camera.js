@@ -1,6 +1,8 @@
 import React from 'react';
-import {Image, TouchableOpacity, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
+import {useIsFocused} from '@react-navigation/native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 import {GalleryContext} from "../contexts/galleryContext";
 import {PermissionsContext} from "../contexts/permissionsContext";
@@ -10,9 +12,8 @@ import Zoom from "./Camera/Zoom";
 import PreviewDot from './Camera/PreviewDot'
 
 import CameraStyles from '../styles/Camera';
-import {useIsFocused} from '@react-navigation/native';
 
-const CameraView = () => {
+const CameraView = ({navigation}) => {
     const isFocused = useIsFocused();
     const {preview} = React.useContext(GalleryContext);
     const {cameraPermission} = React.useContext(PermissionsContext);
@@ -24,6 +25,12 @@ const CameraView = () => {
 
     const camera = React.useRef();
 
+    React.useEffect(() => {
+        navigation.addListener('focus', () => {
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
+        });
+    }, [navigation]);
+
     const setRatio = () => {
         (async () => {
             const ratios = await camera.current.getSupportedRatiosAsync();
@@ -34,8 +41,8 @@ const CameraView = () => {
         })();
     };
 
-    //TODO component for awaiting permissions or Gallery loading state
-    //<PermissionComponent text={} />
+//TODO component for awaiting permissions or Gallery loading state
+//<PermissionComponent text={} />
     if (!cameraPermission) {
         return <View>
             <View>
@@ -44,11 +51,13 @@ const CameraView = () => {
         </View>;
     }
 
+    if (!isFocused) {
+        return <View></View>
+    }
+
     return (
         <View style={CameraStyles.gestureWrapper}>
             <Zoom style={{flex: 1}} zoom={zoom} setZoom={setZoom}>
-
-                {isFocused &&
                 <Camera
                     flashMode={Camera.Constants.FlashMode[flash]}
                     onCameraReady={setRatio}
@@ -57,13 +66,11 @@ const CameraView = () => {
                     type={cameraSource}
                     zoom={zoom}
                     style={CameraStyles.camera}
-                    onLoad={() => {
-                        console.log('loaded')
-                    }}
+                    useCamera2Api={true}
+                    skipProcessing={true}
                 >
                     {preview && <PreviewDot preview={preview}/>}
                 </Camera>
-                }
             </Zoom>
             <Actions
                 actions={{

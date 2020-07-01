@@ -2,15 +2,17 @@ import React from 'react';
 import {ActivityIndicator, Animated, TouchableOpacity, View} from "react-native";
 import {MaterialCommunityIcons as IconMat} from "@expo/vector-icons";
 import {ICONS} from "../../constants/gallery";
+import {OrientationContext} from "../../contexts/orientationContext";
 
 import GalleryStyles from "../../styles/Gallery";
 
-const iconSize = GalleryStyles.bottomBarActions.icons.fontSize;
-
 const Actions = ({croppedFacesState, actions, activeImage}) => {
-    const {blurFaces, deleteImage, saveImage, resetImage} = actions;
-    const [croppedFaces, setCroppedFaces] = croppedFacesState;
+    const {orientation} = React.useContext(OrientationContext);
 
+    const {blurFaces, deleteImage, resetImage, saveImage} = actions;
+    const [croppedFaces] = croppedFacesState;
+
+    const [orientationText, setOrientationText] = React.useState('portrait');
     const [editingBlur, setEditingBlur] = React.useState(false);
     const [activeBlur, setActiveBlur] = React.useState(false);
     const [hasFaceData, setHasFaceData] = React.useState(false);
@@ -18,20 +20,30 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
     const [faceAnimatedValue] = React.useState(new Animated.Value(0.1));
     const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
 
+    const iconSize = GalleryStyles.bottomBarActions.icons[orientationText].fontSize;
+
+    React.useEffect(() => {
+        setOrientationText(orientation === 0 ? 'portrait' : 'landscape');
+    }, [orientation]);
+
+    //Update state when a blur has been selected for editing
     React.useEffect(() => {
         setActiveBlur(croppedFaces.filter((face) => {
             return face.isSelected
         }).length > 0);
     }, [croppedFaces]);
 
+    //Update state when showing blurs on face
     React.useEffect(() => {
         setEditingBlur(croppedFaces.length > 0);
     }, [croppedFaces])
 
+    //Update state when facedata has been processed async
     React.useEffect(() => {
-        setHasFaceData(!!activeImage.faceData);
+        setHasFaceData(activeImage && !!activeImage.faceData);
     }, [activeImage]);
 
+    //Animate icon opacity when face data set
     React.useEffect(() => {
         hasFaceData && Animated.timing(faceAnimatedValue, {
             toValue: 1,
@@ -40,6 +52,7 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
         }).start();
     }, [hasFaceData]);
 
+    //Animate draw when editing face blur
     React.useEffect(() => {
         Animated.timing(actionsAnimatedValue, {
             toValue: activeBlur === false ? 0 : 1,
@@ -111,7 +124,7 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
             ...GalleryStyles.bottomBarActions.wrapper, transform: [{
                 translateY: actionsAnimatedValue.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0, 150]  // 0 : 150, 0.5 : 75, 1 : 0
+                    outputRange: [0, 150]
                 }),
             }]
         }}>
@@ -123,4 +136,4 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
     )
 }
 
-export default Actions;
+export default React.memo(Actions);

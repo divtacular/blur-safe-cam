@@ -3,13 +3,13 @@ import {Text, View} from "react-native";
 import {hideAsync} from 'expo-splash-screen';
 import ImagesDB from "../utils/database";
 
-const Splash = ({setIsLoaded}) => {;
+const Splash = ({setIsLoaded}) => {
 
     React.useEffect(() => {
         // ImagesDB.dropTable().then(() => {});
 
         //prepare resouces, database
-        console.log('start')
+        //console.log('start')
         ImagesDB.createTable().then(() => {
             //setIsLoaded(true);
             console.log('db done');

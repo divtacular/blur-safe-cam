@@ -1,38 +1,18 @@
 import {manipulateAsync, SaveFormat} from "expo-image-manipulator";
 
-/**
- * @Desc format a dispatch event in the require format
- * @param type {string} - The action to perform
- * @param value* {object} - The new values
- * @returns {{type: *, value: *}}
- */
-export const dispatchFormatter = (type, value = null) => {
-    return {
-        type,
-        value
-    };
-}
-
-
 export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimensions}) => {
     const {orgWidth, orgHeight} = originalImageDimensions;
 
     const viewHeight = viewDimensions.height;
     const viewWidth = viewDimensions.width;
 
-    if (orgWidth > orgHeight) { //landscape
-        const scaledHeight = viewWidth * orgHeight / orgWidth;
-        return {
-            width: viewWidth,
-            height: scaledHeight
-        };
-    } else { //portrait
-        const scaledWidth = viewHeight * orgWidth / orgHeight;
-        return {
-            scaledWidth: scaledWidth,
-            scaledHeight: viewHeight
-        };
-    }
+    const scaledHeight = viewWidth * orgHeight / orgWidth;
+    const scaledWidth = viewHeight * orgWidth / orgHeight;
+
+    return {
+        scaledWidth,
+        scaledHeight
+    };
 }
 
 /**
@@ -48,7 +28,7 @@ export const scaleAndPositionFaceBlurRelatively = ({
                                                        faceImage
                                                    }) => {
 
-    const {orgHeight, orgWidth} = originalImageDimensions
+    const {orgHeight, orgWidth} = originalImageDimensions;
 
     const {scaledWidth, scaledHeight} = scaledImageDimensionsInView({
         originalImageDimensions,
@@ -68,7 +48,6 @@ export const scaleAndPositionFaceBlurRelatively = ({
         scaledWidth,
         scaledHeight
     };
-
 }
 
 export const constrainCropToImageDimensions = (cropPosition, {width, height}) => {
@@ -81,12 +60,24 @@ export const constrainCropToImageDimensions = (cropPosition, {width, height}) =>
     const validY = cropPosition.y <= width ? cropPosition.y : 0;
     const validWidth = cropPosition.x + cropPosition.width <= width ? cropPosition.width : width - cropPosition.x;
     const validHeight = cropPosition.y + cropPosition.height <= height ? cropPosition.height : height - cropPosition.y;
+    const borderLeft = Math.min(validX, 200);
+    const borderRight = Math.min(validWidth - validY, 200);
+    //borderLeft
+    //borderRight
+
+    //200 or
+
+    //640w
+    //validy is 400 border = 640 - 400 or 200
+    //validx is 10 width is 640 border is validx or 200
 
     return {
         x: validX,
         y: validY,
         width: validWidth,
-        height: validHeight
+        height: validHeight,
+        borderLeft,
+        borderRight
     }
 }
 
@@ -127,6 +118,32 @@ export const cropFaces = async ({faceData, uri, width, height}) => {
         faces.push({...coord, ...crop});
     }
     return faces;
+};
+
+export const getOrientation = (orientation) => {
+    if (!orientation) {
+        return 0;
+    }
+    const {beta, gamma} = orientation;
+
+    const ABSOLUTE_GAMMA = Math.abs(gamma);
+    const ABSOLUTE_BETA = Math.abs(beta);
+    const isGammaNegative = Math.sign(gamma) === -1;
+
+    if (ABSOLUTE_GAMMA <= 0.04 && ABSOLUTE_BETA <= 0.24) {
+        return 0
+    } else if (
+        (ABSOLUTE_GAMMA <= 1.0 || ABSOLUTE_GAMMA >= 2.3) &&
+        ABSOLUTE_BETA >= 0.5
+    ) {
+        return 0;
+    } else {
+        if (isGammaNegative) {
+            return -90;
+        } else {
+            return 90;
+        }
+    }
 };
 
 export const mapLongPressToBlurredFace = ({tapCoords, croppedFaces, viewDimensions, originalImageDimensions}) => {

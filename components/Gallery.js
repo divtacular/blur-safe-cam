@@ -2,6 +2,13 @@
 import React from 'react';
 import {View, Text} from 'react-native'
 import GallerySwiper from "react-native-gallery-swiper";
+import {
+    lockAsync,
+    Orientation,
+    OrientationLock,
+    addOrientationChangeListener,
+    removeOrientationChangeListeners
+} from 'expo-screen-orientation';
 
 import {NavigationContext} from "@react-navigation/core";
 import {StoreContext} from "../store/StoreContext";
@@ -12,42 +19,55 @@ import GalleryImage from "./Gallery/GalleryImage";
 import BlurredFaces from "./BlurredFaces";
 
 import {cropFaces} from "../utils/helpers";
-import BlurredFace from "./BlurredFaces/BlurredFace";
 
-const Gallery = () => {
-    const {reducerActions} = React.useContext(StoreContext);
+let activeSlide = 0;
+
+const Gallery = ({navigation}) => {
     const {gallery} = React.useContext(GalleryContext);
     const {navigate} = React.useContext(NavigationContext);
+    const {reducerActions} = React.useContext(StoreContext);
 
     const croppedFacesState = React.useState([]);
-
-    const [images, setImages] = React.useState(gallery);
     const [croppedFaces, setCroppedFaces] = croppedFacesState;
+    const [images, setImages] = React.useState(gallery);
     const [activeImage, setActiveImage] = React.useState(false);
     const [viewDimensions, setViewDimensions] = React.useState(null);
+
+    React.useEffect(() => {
+        navigation.addListener('focus', () => {
+            lockAsync(OrientationLock.ALL);
+        });
+
+        navigation.addListener('blur', () => {
+            lockAsync(OrientationLock.PORTRAIT)
+        });
+
+        addOrientationChangeListener((e) => {
+            setCroppedFaces([]);
+        });
+    }, [navigation]);
 
     React.useEffect(() => {
         if (!gallery.length) {
             navigate('Camera');
         }
-        setImages(gallery);
-        //update active slide data
-        if (activeImage) {
-            //refresh view of active image with facedata if required.
-            setActiveImage(gallery.filter((image) => {
-                return image.id === activeImage.id
-            }));
-        }
+        setImages(gallery.map((image) => {
+            return {
+                ...image,
+                key: image.id
+            }
+        }));
+    }, [gallery]);
+
+    //refresh view of active image after gallery updates.
+    React.useEffect(() => {
+        setActiveImage(gallery[activeSlide]);
     }, [gallery]);
 
     const blurFaces = async () => {
         if (activeImage.faceData && JSON.parse(activeImage.faceData).length) {
             setCroppedFaces(await cropFaces(activeImage));
         }
-    };
-
-    const deleteImage = () => {
-        reducerActions.removeImage(activeImage);
     };
 
     const saveImage = () => {
@@ -60,6 +80,10 @@ const Gallery = () => {
 
     const resetImage = () => {
         setCroppedFaces([]);
+    };
+
+    const deleteImage = () => {
+        reducerActions.removeImage(gallery[activeSlide]);
     };
 
     const GalleryImageRenderer = (props) => {
@@ -87,6 +111,7 @@ const Gallery = () => {
                 style={{flex: 1, backgroundColor: '#111'}}
                 onPageSelected={(idx) => {
                     setActiveImage(gallery[idx]);
+                    activeSlide = idx;
                 }}
             />
 
@@ -95,9 +120,9 @@ const Gallery = () => {
                                                     viewDimensions={viewDimensions}
             />}
 
-            <Actions croppedFacesState={croppedFacesState}
+            <Actions actions={{blurFaces, deleteImage, saveImage, resetImage}}
                      activeImage={activeImage}
-                     actions={{blurFaces, deleteImage, saveImage, resetImage}}
+                     croppedFacesState={croppedFacesState}
             />
         </View>
     );

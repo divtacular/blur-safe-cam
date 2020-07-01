@@ -14,26 +14,26 @@ export const reducer = (state, action) => {
 
     const actions = {
         SET_GALLERY: (state, value) => {
-            console.log('SET: ', value);
+            //console.log('SET: ', value);
             return value && value.length ? [
                 ...value
             ] : [];
         },
         ADD_IMAGE: (state, image) => {
-            console.log('ADD: ', image)
+            //console.log('ADD: ', image)
             return [
                 image,
                 ...state
             ]
         },
         UPDATE_IMAGE: (state, updatedAsset) => {
-            console.log('UPDATE: ', updatedAsset);
+            //console.log('UPDATE: ', updatedAsset);
             return state.map((image) => {
                 return image.id === updatedAsset.id ? updatedAsset : image;
             });
         },
         REMOVE_IMAGE: (state, {id}) => {
-            console.log('REMOVE: ', id)
+            //console.log('REMOVE: ', id)
             return state.filter(image => image.id !== id);
         },
     };

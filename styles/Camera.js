@@ -31,14 +31,11 @@ const CameraStyles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
 
-        item: {
-            portrait: {
-                alignItems: 'center',
-                alignSelf: 'center',
-                flex: 1,
-                padding: 10,
-                width: 64,
-            }
+        iconWrapper: {
+            alignItems: 'center',
+            alignSelf: 'center',
+            flex: 1,
+            padding: 10
         },
 
         icons: {

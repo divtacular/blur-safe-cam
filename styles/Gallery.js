@@ -54,6 +54,12 @@ const GalleryStyles = {
         icons: {
             fontSize: 56,
 
+            portrait: {
+                fontSize: 56,
+            },
+            landscape: {
+                fontSize: 32,
+            }
         }
     }
 }

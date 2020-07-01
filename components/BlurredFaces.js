@@ -9,7 +9,7 @@ const BlurredFaces = ({activeImage, croppedFacesState, viewDimensions}) => {
     const [croppedFaces, setCroppedFaces] = croppedFacesState;
 
     return (
-        <View style={{position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, borderWidth: 1, borderColor: 'red'}}>
+        <View style={{position: 'absolute', top: 0, right: 0, bottom: 0, left: 0}}>
             {croppedFaces.map((faceImage, i) => {
                 return <BlurredFace
                     index={i}
@@ -19,7 +19,6 @@ const BlurredFaces = ({activeImage, croppedFacesState, viewDimensions}) => {
                     croppedFacesState={croppedFacesState}
                 />
             })}
-
             <EditFaceBlur croppedFacesState={[croppedFaces, setCroppedFaces]} />
         </View>
     );
