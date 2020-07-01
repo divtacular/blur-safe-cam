@@ -1,7 +1,8 @@
 import React from 'react';
-import {Image, TouchableOpacity, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 import {Camera} from 'expo-camera';
 import {useIsFocused} from '@react-navigation/native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 import {GalleryContext} from "../contexts/galleryContext";
 import {PermissionsContext} from "../contexts/permissionsContext";
@@ -12,7 +13,7 @@ import PreviewDot from './Camera/PreviewDot'
 
 import CameraStyles from '../styles/Camera';
 
-const CameraView = () => {
+const CameraView = ({navigation}) => {
     const isFocused = useIsFocused();
     const {preview} = React.useContext(GalleryContext);
     const {cameraPermission} = React.useContext(PermissionsContext);
@@ -23,6 +24,12 @@ const CameraView = () => {
     const [cameraSource, setCameraSource] = React.useState(Camera.Constants.Type.back);
 
     const camera = React.useRef();
+
+    React.useEffect(() => {
+        navigation.addListener('focus', () => {
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
+        });
+    }, [navigation]);
 
     const setRatio = () => {
         (async () => {
@@ -44,7 +51,7 @@ const CameraView = () => {
         </View>;
     }
 
-    if(!isFocused) {
+    if (!isFocused) {
         return <View></View>
     }
 

@@ -6,19 +6,13 @@ export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimens
     const viewHeight = viewDimensions.height;
     const viewWidth = viewDimensions.width;
 
-    if (orgWidth > orgHeight) { //landscape
-        const scaledHeight = viewWidth * orgHeight / orgWidth;
-        return {
-            scaledWidth: viewWidth,
-            scaledHeight: scaledHeight
-        };
-    } else { //portrait
-        const scaledWidth = viewHeight * orgWidth / orgHeight;
-        return {
-            scaledWidth: scaledWidth,
-            scaledHeight: viewHeight
-        };
-    }
+    const scaledHeight = viewWidth * orgHeight / orgWidth;
+    const scaledWidth = viewHeight * orgWidth / orgHeight;
+
+    return {
+        scaledWidth,
+        scaledHeight
+    };
 }
 
 /**
@@ -66,12 +60,24 @@ export const constrainCropToImageDimensions = (cropPosition, {width, height}) =>
     const validY = cropPosition.y <= width ? cropPosition.y : 0;
     const validWidth = cropPosition.x + cropPosition.width <= width ? cropPosition.width : width - cropPosition.x;
     const validHeight = cropPosition.y + cropPosition.height <= height ? cropPosition.height : height - cropPosition.y;
+    const borderLeft = Math.min(validX, 200);
+    const borderRight = Math.min(validWidth - validY, 200);
+    //borderLeft
+    //borderRight
+
+    //200 or
+
+    //640w
+    //validy is 400 border = 640 - 400 or 200
+    //validx is 10 width is 640 border is validx or 200
 
     return {
         x: validX,
         y: validY,
         width: validWidth,
-        height: validHeight
+        height: validHeight,
+        borderLeft,
+        borderRight
     }
 }
 

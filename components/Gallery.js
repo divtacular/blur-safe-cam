@@ -2,6 +2,13 @@
 import React from 'react';
 import {View, Text} from 'react-native'
 import GallerySwiper from "react-native-gallery-swiper";
+import {
+    lockAsync,
+    Orientation,
+    OrientationLock,
+    addOrientationChangeListener,
+    removeOrientationChangeListeners
+} from 'expo-screen-orientation';
 
 import {NavigationContext} from "@react-navigation/core";
 import {StoreContext} from "../store/StoreContext";
@@ -15,17 +22,30 @@ import {cropFaces} from "../utils/helpers";
 
 let activeSlide = 0;
 
-const Gallery = () => {
-    const {reducerActions} = React.useContext(StoreContext);
+const Gallery = ({navigation}) => {
     const {gallery} = React.useContext(GalleryContext);
     const {navigate} = React.useContext(NavigationContext);
+    const {reducerActions} = React.useContext(StoreContext);
 
     const croppedFacesState = React.useState([]);
-
-    const [images, setImages] = React.useState(gallery);
     const [croppedFaces, setCroppedFaces] = croppedFacesState;
+    const [images, setImages] = React.useState(gallery);
     const [activeImage, setActiveImage] = React.useState(false);
     const [viewDimensions, setViewDimensions] = React.useState(null);
+
+    React.useEffect(() => {
+        navigation.addListener('focus', () => {
+            lockAsync(OrientationLock.ALL);
+        });
+
+        navigation.addListener('blur', () => {
+            lockAsync(OrientationLock.PORTRAIT)
+        });
+
+        addOrientationChangeListener((e) => {
+            setCroppedFaces([]);
+        });
+    }, [navigation]);
 
     React.useEffect(() => {
         if (!gallery.length) {
@@ -100,9 +120,9 @@ const Gallery = () => {
                                                     viewDimensions={viewDimensions}
             />}
 
-            <Actions croppedFacesState={croppedFacesState}
+            <Actions actions={{blurFaces, deleteImage, saveImage, resetImage}}
                      activeImage={activeImage}
-                     actions={{blurFaces, deleteImage, saveImage, resetImage}}
+                     croppedFacesState={croppedFacesState}
             />
         </View>
     );

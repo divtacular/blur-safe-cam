@@ -54,4 +54,4 @@ const Zoom = ({children, setZoom}) => {
     );
 };
 
-export default Zoom;
+export default React.memo(Zoom);

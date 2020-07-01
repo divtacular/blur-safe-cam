@@ -51,7 +51,10 @@ const App = () => {
                                         unmountOnBlur: true
                                     }}/>
                                     <Stack.Screen component={Gallery} name="Gallery" options={{
-                                        unmountOnBlur: true
+                                        unmountOnBlur: true,
+                                        headerStyle: {
+                                            height: 55,
+                                        }
                                     }}/>
                                 </Stack.Navigator>
                             </NavigationContainer>

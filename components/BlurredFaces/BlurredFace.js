@@ -50,8 +50,8 @@ const BlurredFace = ({activeImage, croppedFacesState, faceImage, index, viewDime
             position: 'absolute',
             borderTopLeftRadius: 25,
             borderTopRightRadius: 25,
-            borderBottomLeftRadius: 150,//15,
-            borderBottomRightRadius: 150,//15,
+            borderBottomLeftRadius: positioning.borderLeft,//15,
+            borderBottomRightRadius: positioning.borderRight,//15,
             opacity: faceImage.isSelected ? animatedValue : faceImage.isHidden ? 0 : 1
         }}>
             <TouchableHighlight

@@ -2,21 +2,29 @@ import React from 'react';
 import {ActivityIndicator, Animated, TouchableOpacity, View} from "react-native";
 import {MaterialCommunityIcons as IconMat} from "@expo/vector-icons";
 import {ICONS} from "../../constants/gallery";
+import {OrientationContext} from "../../contexts/orientationContext";
 
 import GalleryStyles from "../../styles/Gallery";
 
-const iconSize = GalleryStyles.bottomBarActions.icons.fontSize;
-
 const Actions = ({croppedFacesState, actions, activeImage}) => {
-    const {blurFaces, deleteImage, saveImage, resetImage} = actions;
+    const {orientation} = React.useContext(OrientationContext);
+
+    const {blurFaces, deleteImage, resetImage, saveImage} = actions;
     const [croppedFaces] = croppedFacesState;
 
+    const [orientationText, setOrientationText] = React.useState('portrait');
     const [editingBlur, setEditingBlur] = React.useState(false);
     const [activeBlur, setActiveBlur] = React.useState(false);
     const [hasFaceData, setHasFaceData] = React.useState(false);
 
     const [faceAnimatedValue] = React.useState(new Animated.Value(0.1));
     const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
+
+    const iconSize = GalleryStyles.bottomBarActions.icons[orientationText].fontSize;
+
+    React.useEffect(() => {
+        setOrientationText(orientation === 0 ? 'portrait' : 'landscape');
+    }, [orientation]);
 
     //Update state when a blur has been selected for editing
     React.useEffect(() => {
@@ -128,4 +136,4 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
     )
 }
 
-export default Actions;
+export default React.memo(Actions);

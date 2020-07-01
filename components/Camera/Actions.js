@@ -116,4 +116,4 @@ const Actions = ({cameraRef, actions}) => {
     );
 };
 
-export default Actions;
+export default React.memo(Actions);
