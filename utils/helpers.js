@@ -9,9 +9,10 @@ export const scaledImageDimensionsInView = ({originalImageDimensions, viewDimens
     const scaledHeight = viewWidth * orgHeight / orgWidth;
     const scaledWidth = viewHeight * orgWidth / orgHeight;
 
+
     return {
-        scaledWidth,
-        scaledHeight
+        scaledWidth: Math.min(viewWidth, scaledWidth),
+        scaledHeight: Math.min(viewHeight, scaledHeight)
     };
 }
 
