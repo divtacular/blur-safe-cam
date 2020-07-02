@@ -1,6 +1,7 @@
 const CameraStyles = {
     gestureWrapper: {
         flex: 1,
+        position: 'relative'
     },
 
     camera: {
@@ -15,6 +16,9 @@ const CameraStyles = {
             height: 72,
             margin: 15,
             width: 72,
+            position: 'absolute',
+            bottom: 75,
+            right: 10,
         },
 
         image: {

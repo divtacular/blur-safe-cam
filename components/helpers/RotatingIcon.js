@@ -4,30 +4,19 @@ import {Animated, View} from 'react-native';
 import CameraStyles from "../../styles/Camera";
 import {OrientationContext} from "../../contexts/orientationContext";
 
-const RotatingIcon = (props) => {
-
-    const {orientation} = React.useContext(OrientationContext);
-    const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
-
-    React.useEffect(() => {
-        Animated.timing(actionsAnimatedValue, {
-            toValue: orientation,
-            duration: 150,
-            useNativeDriver: true
-        }).start();
-    }, [orientation]);
+const RotatingIcon = ({actionsAnimatedValue, children}) => {
 
     return (
-        <View style={CameraStyles.bottomBarActions.iconWrapper}>
+        <View style={CameraStyles.bottomBarActions.animatedWrapper}>
             <Animated.View style={{
-                ...CameraStyles.bottomBarActions.animatedWrapper, transform: [{
+                ...CameraStyles.bottomBarActions.item, transform: [{
                     rotate: actionsAnimatedValue.interpolate({
                         inputRange: [0, 90, 270],
                         outputRange: ['0deg', '-90deg', '90deg']
                     }),
                 }]
             }}>
-                {props.children}
+                {children}
             </Animated.View>
         </View>
     );

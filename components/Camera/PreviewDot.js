@@ -25,17 +25,17 @@ const PreviewDot = ({preview}) => {
     };
 
     return (
-        <Animated.View style={{transform: [{
-                rotate: actionsAnimatedValue.interpolate({
-                    inputRange: [0, 90, 270],
-                    outputRange: ['0deg', '-90deg', '90deg']
-                }),
-            }]
-        }}>
             <TouchableOpacity onPress={handlePress} style={CameraStyles.previewWrapper.button}>
-                <Image source={{uri: preview.uri}} style={CameraStyles.previewWrapper.image}/>
+                <Animated.View style={{...CameraStyles.previewWrapper.image, transform: [{
+                        rotate: actionsAnimatedValue.interpolate({
+                            inputRange: [0, 90, 270],
+                            outputRange: ['0deg', '-90deg', '90deg']
+                        }),
+                    }]
+                }}>
+                        <Image source={{uri: preview.uri}} style={CameraStyles.previewWrapper.image}/>
+                </Animated.View>
             </TouchableOpacity>
-        </Animated.View>
     );
 };
 

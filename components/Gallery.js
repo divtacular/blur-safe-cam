@@ -28,6 +28,7 @@ const Gallery = ({navigation}) => {
     const croppedFacesState = React.useState([]);
     const [croppedFaces, setCroppedFaces] = croppedFacesState;
     const [images, setImages] = React.useState(gallery);
+    const [isBlurring, setIsBlurring] = React.useState(false);
     const [activeImage, setActiveImage] = React.useState(false);
     const [viewDimensions, setViewDimensions] = React.useState(null);
 
@@ -62,9 +63,16 @@ const Gallery = ({navigation}) => {
         setActiveImage(gallery[activeSlide]);
     }, [gallery]);
 
-    const blurFaces = async () => {
+    const blurFaces = () => {
         if (activeImage.faceData && JSON.parse(activeImage.faceData).length) {
-            setCroppedFaces(await cropFaces(activeImage));
+            setIsBlurring(true);
+            const checkSlide = activeSlide.valueOf();
+            cropFaces(activeImage).then((faceData) => {
+                if (checkSlide === activeSlide) {
+                    setCroppedFaces(faceData);
+                }
+                setIsBlurring(false);
+            })
         }
     };
 
@@ -108,6 +116,7 @@ const Gallery = ({navigation}) => {
                 sensitiveScroll={true}
                 style={{flex: 1, backgroundColor: '#111'}}
                 onPageSelected={(idx) => {
+                    setCroppedFaces([]);
                     setActiveImage(gallery[idx]);
                     activeSlide = idx;
                 }}
@@ -120,6 +129,7 @@ const Gallery = ({navigation}) => {
 
             <Actions actions={{blurFaces, deleteImage, saveImage, resetImage}}
                      activeImage={activeImage}
+                     isBlurring={isBlurring}
                      croppedFacesState={croppedFacesState}
             />
         </View>

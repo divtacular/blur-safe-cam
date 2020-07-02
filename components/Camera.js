@@ -18,6 +18,9 @@ const CameraView = ({navigation}) => {
     const {preview} = React.useContext(GalleryContext);
     const {cameraPermission} = React.useContext(PermissionsContext);
 
+    const zoomActiveState = React.useState(false);
+
+    const [isZooming, setIsZooming] = zoomActiveState;
     const [zoom, setZoom] = React.useState(0);
     const [flash, setFlash] = React.useState('off');
     const [aspectRatio, setAspectRatio] = React.useState('16:9');
@@ -57,7 +60,7 @@ const CameraView = ({navigation}) => {
 
     return (
         <View style={CameraStyles.gestureWrapper}>
-            <Zoom style={{flex: 1}} zoom={zoom} setZoom={setZoom}>
+            <Zoom style={{flex: 1}} zoom={zoom} setZoom={setZoom} zoomActiveState={zoomActiveState}>
                 <Camera
                     flashMode={Camera.Constants.FlashMode[flash]}
                     onCameraReady={setRatio}
@@ -66,18 +69,20 @@ const CameraView = ({navigation}) => {
                     type={cameraSource}
                     zoom={zoom}
                     style={CameraStyles.camera}
-                    useCamera2Api={true}
+                    //useCamera2Api={true}
                     skipProcessing={true}
                 >
-                    {preview && <PreviewDot preview={preview}/>}
                 </Camera>
             </Zoom>
+            <PreviewDot preview={preview}/>
             <Actions
                 actions={{
                     flashState: [flash, setFlash],
                     cameraSourceState: [cameraSource, setCameraSource]
                 }}
-                cameraRef={camera}/>
+                cameraRef={camera}
+                isZooming={isZooming}
+            />
         </View>
     );
 }
