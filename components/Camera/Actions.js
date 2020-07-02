@@ -15,7 +15,7 @@ import {ICONS, FLASH_ORDER} from "../../constants/camera";
 
 const iconSize = CameraStyles.bottomBarActions.icons.fontSize;
 
-const Actions = ({cameraRef, actions}) => {
+const Actions = ({cameraRef, actions, isZooming}) => {
     const {reducerActions} = React.useContext(StoreContext);
     const {orientation} = React.useContext(OrientationContext);
     const {mediaLibraryPermission} = React.useContext(PermissionsContext);
@@ -24,6 +24,10 @@ const Actions = ({cameraRef, actions}) => {
     const [cameraSource, setCameraSource] = actions.cameraSourceState;
     const [icons, setIcons] = React.useState({});
 
+    const [canCapture, setCanCapture] = React.useState(true);
+
+    const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
+
     React.useEffect(() => {
         const cameraSourceIconName = Camera.Constants.Type.front === cameraSource ? 'front' : 'rear';
         setIcons({
@@ -31,6 +35,14 @@ const Actions = ({cameraRef, actions}) => {
             camera: ICONS.CAMERA_SOURCE_ICONS[cameraSourceIconName]
         });
     }, [flash, cameraSource]);
+
+    React.useEffect(() => {
+        !isZooming && Animated.timing(actionsAnimatedValue, {
+            toValue: orientation,
+            duration: 150,
+            useNativeDriver: true
+        }).start();
+    }, [orientation]);
 
     const toggleCameraSource = () => {
         setCameraSource(
@@ -49,7 +61,8 @@ const Actions = ({cameraRef, actions}) => {
     };
 
     const takePicture = () => {
-        if (cameraRef) {
+        if (cameraRef && canCapture) {
+            setCanCapture(false);
             cameraRef.current.takePictureAsync().then((res) => {
                 if (orientation !== 0) {
                     manipulateAsync(
@@ -58,9 +71,11 @@ const Actions = ({cameraRef, actions}) => {
                         {compress: 1, format: SaveFormat.JPEG}
                     ).then((image) => {
                         reducerActions.addImage(image);
+                        setCanCapture(true);
                     });
                 } else {
                     reducerActions.addImage(res);
+                    setCanCapture(true);
                 }
             }).catch((e) => {
                 console.log('error: take picture', e)
@@ -78,40 +93,44 @@ const Actions = ({cameraRef, actions}) => {
 
     return (
         <View style={CameraStyles.bottomBarActions}>
-            <RotatingIcon>
-                <TouchableOpacity
-                    accessible={true}
-                    accessibilityLabel="Toggle Camera Source"
-                    accessibilityHint={`Switch to ${cameraSource === Camera.Constants.Type.front ? 'front' : 'back'} camera`}
-                    onPress={toggleCameraSource}
-                    style={CameraStyles.bottomBarActions.item}
-                >
+            <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="Toggle Camera Source"
+                accessibilityHint={`Switch to ${cameraSource === Camera.Constants.Type.front ? 'front' : 'back'} camera`}
+                onPress={toggleCameraSource}
+                style={CameraStyles.bottomBarActions.iconWrapper}
+            >
+                <RotatingIcon actionsAnimatedValue={actionsAnimatedValue}>
                     <IconMat name={icons.camera} size={iconSize / 1.9} color={"#fff"}/>
-                </TouchableOpacity>
-            </RotatingIcon>
+                </RotatingIcon>
+            </TouchableOpacity>
 
-            <RotatingIcon>
-                <TouchableOpacity
-                    accessible={true}
-                    accessibilityLabel="Take photograph"
-                    onPress={takePicture}
-                    style={CameraStyles.bottomBarActions.item}
-                >
-                    <IconMat name={ICONS.CAMERA_SHUTTER} size={iconSize} color={"#fff"}/>
-                </TouchableOpacity>
-            </RotatingIcon>
+            <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="Take photograph"
+                onPress={takePicture}
+                style={CameraStyles.bottomBarActions.iconWrapper}
+            >
+                <RotatingIcon actionsAnimatedValue={actionsAnimatedValue}>
+                    <IconMat name={ICONS.CAMERA_SHUTTER}
+                             size={iconSize}
+                             style={{opacity: canCapture ? 1 : 0.1}}
+                             color={"#fff"}
+                    />
+                </RotatingIcon>
+            </TouchableOpacity>
 
-            <RotatingIcon>
-                <TouchableOpacity
-                    accessible={true}
-                    accessibilityLabel="Toggle flash setting"
-                    accessibilityHint={`Flash is ${flash}`}
-                    onPress={toggleFlash}
-                    style={CameraStyles.bottomBarActions.item}
-                >
+            <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="Toggle flash setting"
+                accessibilityHint={`Flash is ${flash}`}
+                onPress={toggleFlash}
+                style={CameraStyles.bottomBarActions.iconWrapper}
+            >
+                <RotatingIcon actionsAnimatedValue={actionsAnimatedValue}>
                     <IconMat name={icons.flash} size={iconSize / 1.9} color={"#fff"}/>
-                </TouchableOpacity>
-            </RotatingIcon>
+                </RotatingIcon>
+            </TouchableOpacity>
         </View>
     );
 };

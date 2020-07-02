@@ -6,7 +6,7 @@ import {OrientationContext} from "../../contexts/orientationContext";
 
 import GalleryStyles from "../../styles/Gallery";
 
-const Actions = ({croppedFacesState, actions, activeImage}) => {
+const Actions = ({croppedFacesState, actions, activeImage, isBlurring}) => {
     const {orientation} = React.useContext(OrientationContext);
 
     const {blurFaces, deleteImage, resetImage, saveImage} = actions;
@@ -17,7 +17,7 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
     const [activeBlur, setActiveBlur] = React.useState(false);
     const [hasFaceData, setHasFaceData] = React.useState(false);
 
-    const [faceAnimatedValue] = React.useState(new Animated.Value(0.1));
+    const [faceAnimatedValue, setFaceAnimatedValue] = React.useState(new Animated.Value(0.1));
     const [actionsAnimatedValue] = React.useState(new Animated.Value(0));
 
     const iconSize = GalleryStyles.bottomBarActions.icons[orientationText].fontSize;
@@ -45,11 +45,14 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
 
     //Animate icon opacity when face data set
     React.useEffect(() => {
-        hasFaceData && Animated.timing(faceAnimatedValue, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true
-        }).start();
+        if (hasFaceData) {
+            Animated.timing(faceAnimatedValue, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true
+            }).start();
+            setFaceAnimatedValue(new Animated.Value(1));
+        }
     }, [hasFaceData]);
 
     //Animate draw when editing face blur
@@ -71,7 +74,7 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
                     onPress={blurFaces}
                     style={GalleryStyles.bottomBarActions.item.portrait}
                 >
-                    <ActivityIndicator animating={!hasFaceData} size={60} color="#fff" style={{
+                    <ActivityIndicator animating={!hasFaceData || isBlurring} size={60} color="#fff" style={{
                         position: 'absolute',
                     }}/>
                     <Animated.View style={{opacity: faceAnimatedValue}}>
@@ -85,10 +88,16 @@ const Actions = ({croppedFacesState, actions, activeImage}) => {
                     accessible={true}
                     accessibilityLabel="Delete image"
                     accessibilityHint={`Permanently delete the image shown`}
-                    onPress={deleteImage}
+                    onPress={() => {
+                        if (hasFaceData) {
+                            deleteImage()
+                        }
+                    }}
                     style={GalleryStyles.bottomBarActions.item.portrait}
                 >
-                    <IconMat name={ICONS.delete} size={iconSize} color={"#fff"}/>
+                    <Animated.View style={{opacity: faceAnimatedValue}}>
+                        <IconMat name={ICONS.delete} size={iconSize} color={"#fff"}/>
+                    </Animated.View>
                 </TouchableOpacity>
             </>
         )

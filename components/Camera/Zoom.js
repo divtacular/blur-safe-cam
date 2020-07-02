@@ -4,40 +4,63 @@ import {View} from 'react-native';
 import {PanGestureHandler, State} from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
+import ZoomProgress from "./ZoomProgress";
+
 import CameraStyles from "../../styles/Camera";
+import {OrientationContext} from "../../contexts/orientationContext";
 
 //TODO: Add visual feedback for zoom level
-const Zoom = ({children, setZoom}) => {
+const Zoom = ({children, zoom, setZoom, zoomActiveState}) => {
 
-    const { travelTracker } = React.useMemo(() => ({
+    const {orientation} = React.useContext(OrientationContext);
+    const [isZooming, setIsZooming] = zoomActiveState;
+    const [direction, setDirection] = React.useState('y');
+    const {travelTracker} = React.useMemo(() => ({
         travelTracker: {
-            travelCap: 400,
-            startY: 0,
-            lastY: 0,
+            travelCap: 200,
+            start: 0,
+            last: 0,
             travel: 0
         }
     }), [])
 
+    React.useEffect(() => {
+        if (isZooming) {
+            return;
+        }
+        //reset zoom too?
+        setDirection(orientation === 0 ? 'y' : 'x');
+    }, [orientation]);
+
     const onPanHandlerStateChange = ({nativeEvent}) => {
-        const curY = nativeEvent.y;
-        if (nativeEvent.state === State.BEGAN || nativeEvent.state === State.END) {
-            travelTracker.startY = curY;
-            travelTracker.lastY = curY;
-            travelTracker.travel = 0;
+        const cur = nativeEvent[direction];
+        if (nativeEvent.state === State.BEGAN) {
+            setIsZooming(true);
+        }
+
+        if (nativeEvent.state === State.END) {
+            setIsZooming(false);
         }
     };
 
     const panHandlerEventProgress = ({nativeEvent}) => {
-        const curY = nativeEvent.y;
+        const cur = nativeEvent[direction];
 
-        if (travelTracker.lastY >= curY) { //increase zoom
-            travelTracker.travel = Math.min(travelTracker.travel + (travelTracker.lastY - curY), 200);
-        } else { //decrease zoom
-            travelTracker.travel = Math.max(travelTracker.travel - (curY - travelTracker.lastY), 0);
+        if (orientation === -90) {
+            if (travelTracker.last >= cur) { //increase zoom
+                travelTracker.travel = Math.min(travelTracker.travel - (travelTracker.last - cur), 200);
+            } else { //decrease zoom
+                travelTracker.travel = Math.max(travelTracker.travel + (cur - travelTracker.last), 0);
+            }
+        } else {
+            if (travelTracker.last >= cur) { //increase zoom
+                travelTracker.travel = Math.min(travelTracker.travel + (travelTracker.last - cur), 200);
+            } else { //decrease zoom
+                travelTracker.travel = Math.max(travelTracker.travel - (cur - travelTracker.last), 0);
+            }
         }
-
         setZoom(travelTracker.travel / travelTracker.travelCap);
-        travelTracker.lastY = curY;
+        travelTracker.last = cur;
     }
 
     return (
@@ -50,6 +73,7 @@ const Zoom = ({children, setZoom}) => {
                     {children}
                 </Animated.View>
             </PanGestureHandler>
+            {isZooming && <ZoomProgress zoom={zoom}/>}
         </View>
     );
 };
