@@ -13,6 +13,9 @@ const useActions = (state, dispatch) => ({
     },
     setGallery: (value) => {
         return dispatch({type: types.SET_GALLERY, value})
+    },
+    saveImage: (value) => {
+        return dispatch({type: types.SAVE_IMAGE, value})
     }
 });
 

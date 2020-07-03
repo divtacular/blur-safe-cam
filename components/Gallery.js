@@ -12,9 +12,10 @@ import {NavigationContext} from "@react-navigation/core";
 import {StoreContext} from "../store/StoreContext";
 import {GalleryContext} from "../contexts/galleryContext";
 
+import BlurredFaces from "./BlurredFaces";
 import Actions from './Gallery/Actions';
 import GalleryImage from "./Gallery/GalleryImage";
-import BlurredFaces from "./BlurredFaces";
+import SaveImage from './Gallery/SaveImage';
 
 import {cropFaces} from "../utils/helpers";
 
@@ -28,6 +29,7 @@ const Gallery = ({navigation}) => {
     const croppedFacesState = React.useState([]);
     const [croppedFaces, setCroppedFaces] = croppedFacesState;
     const [images, setImages] = React.useState(gallery);
+    const [isSaving, setIsSaving] = React.useState(false);
     const [isBlurring, setIsBlurring] = React.useState(false);
     const [activeImage, setActiveImage] = React.useState(false);
     const [viewDimensions, setViewDimensions] = React.useState(null);
@@ -72,16 +74,13 @@ const Gallery = ({navigation}) => {
                     setCroppedFaces(faceData);
                 }
                 setIsBlurring(false);
-            })
+            });
         }
     };
 
     const saveImage = () => {
-        console.log('save image');
-        //check for hidden blurs? Could just leave them hidden.
-        //full screen, use hidden view
-        //apply faces
-        //captureref
+        setIsSaving(true);
+        setCroppedFaces([]);
     };
 
     const resetImage = () => {
@@ -105,7 +104,7 @@ const Gallery = ({navigation}) => {
         <View style={{flex: 1, position: 'relative'}} onLayout={(event) => {
             setViewDimensions({...event.nativeEvent.layout});
         }}>
-            <GallerySwiper
+            {!isSaving && <GallerySwiper
                 images={images}
                 imageComponent={GalleryImageRenderer}
                 initialNumToRender={2}
@@ -120,18 +119,19 @@ const Gallery = ({navigation}) => {
                     setActiveImage(gallery[idx]);
                     activeSlide = idx;
                 }}
-            />
+            />}
 
             {!!croppedFaces.length && <BlurredFaces activeImage={activeImage}
                                                     croppedFacesState={croppedFacesState}
                                                     viewDimensions={viewDimensions}
             />}
 
-            <Actions actions={{blurFaces, deleteImage, saveImage, resetImage}}
+            {!isSaving && <Actions actions={{blurFaces, deleteImage, saveImage, resetImage}}
                      activeImage={activeImage}
-                     isBlurring={isBlurring}
                      croppedFacesState={croppedFacesState}
-            />
+                     isBlurring={isBlurring}
+            />}
+            {isSaving && <SaveImage activeImage={activeImage} setIsSaving={setIsSaving} />}
         </View>
     );
 };

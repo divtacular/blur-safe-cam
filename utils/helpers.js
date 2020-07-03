@@ -110,7 +110,7 @@ export const cropFaces = async ({faceData, uri, width, height}) => {
                     height: coord.height
                 }
             }],
-            {compress: 1, format: SaveFormat.JPEG}
+            {compress: 0.8, format: SaveFormat.JPEG}
         )
             .catch((error) => {
                 return console.warn(error);

@@ -26,15 +26,21 @@ const updateImage = async (asset) => {
     });
 }
 
-const removeImage = async({id}) => {
+const removeImage = async ({id}) => {
     return ImagesDB.destroy(id);
 }
+
+const saveImage = async ({asset}) => {
+    asset.processed = true;
+    return updateImage(asset);
+};
 
 const databaseActions = {
     SET_GALLERY: setGallery,
     ADD_IMAGE: addImage,
     UPDATE_IMAGE: updateImage,
-    REMOVE_IMAGE: removeImage
+    REMOVE_IMAGE: removeImage,
+    SAVE_IMAGE: saveImage
 }
 
 export default databaseActions;
