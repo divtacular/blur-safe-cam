@@ -64,19 +64,21 @@ const Actions = ({cameraRef, actions, isZooming}) => {
         if (cameraRef && canCapture) {
             setCanCapture(false);
             cameraRef.current.takePictureAsync().then((res) => {
-                if (orientation !== 0) {
-                    manipulateAsync(
-                        res.uri,
-                        [{rotate: orientation}],
-                        {compress: 1, format: SaveFormat.JPEG}
-                    ).then((image) => {
-                        reducerActions.addImage(image);
-                        setCanCapture(true);
-                    });
-                } else {
-                    reducerActions.addImage(res);
-                    setCanCapture(true);
+                let rotation = orientation;
+                //fix front camera orientation
+                if (cameraSource === Camera.Constants.Type.front) {
+                    rotation = orientation === 90 ? -90 : 90;
                 }
+
+                manipulateAsync(
+                    res.uri,
+                    [{rotate: rotation}],
+                    {compress: 0.8, format: SaveFormat.JPEG}
+                ).then((image) => {
+                    reducerActions.addImage(image);
+                    setCanCapture(true);
+                });
+
             }).catch((e) => {
                 console.log('error: take picture', e)
             });

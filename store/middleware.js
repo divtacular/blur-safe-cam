@@ -47,6 +47,12 @@ const middleWareActions = {
         return databaseActions.REMOVE_IMAGE(action.value).then(() => {
             return action;
         });
+    },
+    SAVE_IMAGE: (action) => {
+        filesystemActions.SAVE_IMAGE(action.value);
+        return databaseActions.SAVE_IMAGE(action.value).then(() => {
+           return action;
+        });
     }
 };
 

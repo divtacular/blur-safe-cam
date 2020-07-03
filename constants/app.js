@@ -1,5 +1,5 @@
-const STORAGE_KEY = 'blurSafeCam'
-const ALBUM_NAME = 'Face Blur Camera'
+const STORAGE_KEY = 'com.privacyBlurFaceCam'
+const ALBUM_NAME = 'Blurred Faces Camera'
 const DB = {
     DB: 'imageData.db',
     TABLE_IMAGE_DATA: 'image_data',

@@ -3,6 +3,7 @@ export const types = {
     REMOVE_IMAGE: "REMOVE_IMAGE",
     UPDATE_IMAGE: "UPDATE_IMAGE",
     SET_GALLERY: "SET_GALLERY",
+    SAVE_IMAGE: "SAVE_IMAGE"
 };
 
 export const reducer = (state, action) => {
@@ -36,6 +37,14 @@ export const reducer = (state, action) => {
             //console.log('REMOVE: ', id)
             return state.filter(image => image.id !== id);
         },
+        SAVE_IMAGE:(state, {asset}) => {
+            return state.map((image) => {
+                if(image.id === asset.id) {
+                    asset.processed = true;
+                }
+                return image;
+            });
+        }
     };
 
     return actions[action.type](state, action.value) || console.error(`Invalid action type: ${action.type}`);
